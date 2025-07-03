@@ -1,6 +1,6 @@
 # Dia 01: Planejamento e Estrutura Inicial
 
-**Data:** 01/07/2024
+**Data:** 01/07/2025
 
 ## O que foi feito hoje?
 

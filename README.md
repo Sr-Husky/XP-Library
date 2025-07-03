@@ -71,8 +71,8 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
 - Mockar login (simular)
 - Botão de logout e verificação de estado logado/deslogado
 
-#### 📌 Sexta (05/07) — **Minhas experiencias + Favoritas**
-- Criar página `/minhas-experiencias`
+#### 📌 Sexta (05/07) — **Me + Favoritas**
+- Criar página `/me`
     - Listagem mockada das experiencias do usuário logado
     - Botão "Nova Experiencia"
     - Botão de editar/deletar (sem funcionalidade real ainda)

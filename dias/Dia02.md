@@ -1,6 +1,6 @@
 # Dia 02 – **Configuração do Front-end**
 
-**Data:** 01/07/2025
+**Data:** 02/07/2025
 
 ## ✏ O que eu estudei hoje
 
@@ -115,7 +115,7 @@
 ✔ Estrutura do Docker Compose
 ✔ Funcionamento do gerenciador de pacotes do Node
 ✔ Como funciona o Vite e para que ele serve
-✔ Estilização com Tailwind e como eu ele se integra no projeto
+✔ Estilização com Tailwind e como ele se integra no projeto
 ✔ Como estruturar um projeto Vite + React + Tailwind
 ✔ Fluxo de interação entre todas as partes do projeto até chegar no resultado final
 ✔ Como os componentes em React são criados e organizados
@@ -131,6 +131,6 @@
 * Criado projeto Vite + React + Typescript
 * Feita integração com Tailwind
 * Criado esqueleto dos componentes "navbar" e "rodape"
-* Criado arquivos de componente das paginas
-* Configuradas rotas para cara pagina
-* Mudei o nome da pagina "minhas-experiencias" para apenas "me"
+* Criado arquivos de componente das páginas
+* Configuradas rotas para cada página
+* Mudei o nome da página "minhas-experiencias" para apenas "me"

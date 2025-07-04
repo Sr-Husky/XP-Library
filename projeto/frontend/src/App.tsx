@@ -10,14 +10,12 @@ import Nova from './pages/nova'
 import Rodape from './components/rodape'
 import Navbar from './components/navbar'
 
-import './App.css'
-
 function App() {
 
   return (
     <>
       <Navbar />
-      <div className='mt-14 md:mt-16'>
+      <div className='mt-16 md:mt-20'>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />

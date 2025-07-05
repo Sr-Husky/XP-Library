@@ -1,5 +1,5 @@
 import Card from '../components/card'
-import SearchBox from '../components/searchBox'
+import SearchBox from '../components/editBox'
 import { useEffect, useState} from 'react'
 
 function Home(){
@@ -39,11 +39,10 @@ function Home(){
         setEnter(true);
     }
 
-
     return (
         <>
             <div className='flex justify-center'>
-                <SearchBox value={texto} onChange={setTexto} onEnter={handleEnterPress} />
+                <SearchBox rotulo='Buscar...' value={texto} onChange={setTexto} onEnter={handleEnterPress} />
             </div>
             <div className='flex justify-center w-full'>
                 <div className='flex flex-wrap gap-2 max-w-[1000px] pt-4'>
@@ -56,7 +55,7 @@ function Home(){
             </div>
             <div className='flex justify-center flex-wrap p-[20px]'>
                 {filtrados.map(xp => (
-                    <Card key={xp.id} card_id={xp.id} user={xp.id_user} texto={xp.texto} />
+                    <Card key={xp.id} card_id={xp.id} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
                 ))}
             </div>
         </>

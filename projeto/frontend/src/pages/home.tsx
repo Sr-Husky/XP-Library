@@ -2,7 +2,7 @@ import Card from '../components/card'
 import SearchBox from '../components/editBox'
 import { useEffect, useState} from 'react'
 
-function Home(){
+function Home({ user, id_user, favoritos }: { user?: boolean, id_user?:number, favoritos?:any[] }){
 
     const [data, setData] = useState<any[]>([]);
     const [texto, setTexto] = useState("");
@@ -13,7 +13,8 @@ function Home(){
         const buscar = async () => {
             var res = await fetch('/mock/xp.json');
             var json = await res.json();
-            setData(json);
+            if(user) setData(json.filter(xp => id_user === xp.id_user));
+            else setData(json);
         };
 
         buscar();
@@ -35,6 +36,16 @@ function Home(){
         tags.some(tagFiltro => xp.tags.map((t: string) => t.toLowerCase()).includes(tagFiltro)))
     );
 
+    let favFiltrados = [];
+    if(favoritos){
+        favFiltrados = favoritos.filter(xp =>
+            (texto.trim()[0] === '#' ||
+            xp.texto.toLowerCase().includes(texto.trim().toLowerCase())) &&
+            (tags.length === 0 || 
+            tags.some(tagFiltro => xp.tags.map((t: string) => t.toLowerCase()).includes(tagFiltro)))
+        );
+    }
+
     function handleEnterPress() {
         setEnter(true);
     }
@@ -53,11 +64,30 @@ function Home(){
                     ))}
                 </div>
             </div>
+            {user &&
+                <div className='flex justify-center items-center flex-wrap p-[20px]'>
+                    <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
+                    <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Minhas experiências</h1>
+                    <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
+                </div>
+            }
             <div className='flex justify-center flex-wrap p-[20px]'>
                 {filtrados.map(xp => (
                     <Card key={xp.id} card_id={xp.id} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
                 ))}
             </div>
+            {(favFiltrados.length !== 0) && <>
+                <div className='flex justify-center items-center flex-wrap p-[20px]'>
+                    <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
+                    <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Favoritos</h1>
+                    <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
+                </div>
+                <div className='flex justify-center flex-wrap p-[20px]'>
+                    {favFiltrados.map(xp => (
+                        <Card key={xp.id} card_id={xp.id} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
+                    ))}
+                </div>
+            </>}
         </>
     )
 }

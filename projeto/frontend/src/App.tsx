@@ -4,8 +4,6 @@ import { useState } from 'react'
 import Home from './pages/home'
 import Entrar from './pages/entrar'
 import Me from './pages/me'
-import Favoritas from './pages/favoritas'
-import Nova from './pages/nova'
 
 import Rodape from './components/rodape'
 import Navbar from './components/navbar'
@@ -21,12 +19,10 @@ function App() {
           <div className="flex flex-col min-h-screen mt-16 md:mt-20">
             <div className="flex-grow">
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/entrar" element={<Entrar />} />
+                <Route path="/" element={<Home navMsg={tipo} limpaNavMsg={() => setTipo("")}/>} />
+                <Route path="/entrar" element={<Entrar navMsg={tipo} limpaNavMsg={() => setTipo("")}/>} />
                 <Route path="/me" element={<Me navMsg={tipo} limpaNavMsg={() => setTipo("")} />} />
-                <Route path="/favoritas" element={<Favoritas />} />
-                <Route path="/nova" element={<Nova />} />
-                <Route path="*" element={<Home />} />
+                <Route path="*" element={<Home navMsg={tipo} limpaNavMsg={() => setTipo("")}/>} />
               </Routes>
             </div>
           </div>

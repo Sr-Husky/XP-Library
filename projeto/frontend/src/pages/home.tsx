@@ -1,13 +1,15 @@
 import Card from '../components/card'
 import SearchBox from '../components/editBox'
 import { useEffect, useState} from 'react'
+import { useNavigate } from 'react-router-dom'
 
-function Home({ user, id_user, favoritos }: { user?: boolean, id_user?:number, favoritos?:any[] }){
+function Home({ user, id_user, favoritos, navMsg, limpaNavMsg }: { user?: boolean, id_user?:number, favoritos?:any[], navMsg?:string, limpaNavMsg?: () => void }){
 
     const [data, setData] = useState<any[]>([]);
     const [texto, setTexto] = useState("");
     const [tags, setTag] = useState<string[]>([]);
     const [enter, setEnter] = useState(false);
+    const navigate = useNavigate();
     
     useEffect(() => {
         const buscar = async () => {
@@ -19,6 +21,16 @@ function Home({ user, id_user, favoritos }: { user?: boolean, id_user?:number, f
 
         buscar();
     }, []);
+
+    useEffect(() => {
+        if(navMsg){
+            if(navMsg === "logout"){
+                localStorage.removeItem("usuario");
+                navigate('/entrar');
+                limpaNavMsg()
+            }
+        }
+    }, [navMsg])
 
     useEffect(() => {
         if(texto.startsWith('#') && (texto.endsWith(',') || texto.endsWith(' ') || enter)){
@@ -73,7 +85,7 @@ function Home({ user, id_user, favoritos }: { user?: boolean, id_user?:number, f
             }
             <div className='flex justify-center flex-wrap p-[20px]'>
                 {filtrados.map(xp => (
-                    <Card key={xp.id} card_id={xp.id} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
+                    <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
                 ))}
             </div>
             {(favFiltrados.length !== 0) && <>
@@ -84,7 +96,7 @@ function Home({ user, id_user, favoritos }: { user?: boolean, id_user?:number, f
                 </div>
                 <div className='flex justify-center flex-wrap p-[20px]'>
                     {favFiltrados.map(xp => (
-                        <Card key={xp.id} card_id={xp.id} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
+                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
                     ))}
                 </div>
             </>}

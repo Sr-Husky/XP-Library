@@ -14,7 +14,6 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
         if(navMsg){
             if(navMsg === "logout"){
                 localStorage.removeItem("usuario");
-                console.log("to aqui");
                 navigate('/entrar');
                 limpaNavMsg()
             }
@@ -31,7 +30,6 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
             const res = await fetch('/mock/users.json');
             const json = await res.json();
             if((json.find((e) => e.id === user.id)).logado === false) navigate('/entrar');
-            console.log(user.favoritos);
         }
         buscar();
     },[])

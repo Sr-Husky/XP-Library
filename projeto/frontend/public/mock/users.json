@@ -6,6 +6,7 @@
         "senha": "canetazul",
         "data": "2025-07-03T01:00:00Z",
         "logado": false,
+        "like": [],
         "favoritos": []
     },
     {
@@ -15,6 +16,7 @@
         "senha": "bibiu123",
         "data": "2025-07-03T02:00:00Z",
         "logado": false,
+        "like": [],
         "favoritos": []
     },
     {
@@ -24,6 +26,7 @@
         "senha": "cadeopix",
         "data": "2025-07-03T03:00:00Z",
         "logado": true,
+        "like": [5, 3],
         "favoritos": [
             {
                 "id": 3,

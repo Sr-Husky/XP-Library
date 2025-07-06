@@ -4,7 +4,7 @@ import EditBox from '../components/editBox'
 import Botao from '../components/botao'
 import { useNavigate } from "react-router-dom";
 
-function Entrar(){
+function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => void} ){
 
     const [onHoverCard, setOnHoverCard] = useState<boolean>(false);
     const [selecao, setSelecao] = useState<'login' | 'cadastro' | ''>('');
@@ -19,6 +19,15 @@ function Entrar(){
     const navigate = useNavigate();
 
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+    useEffect(() => {
+        if(navMsg){
+            if(navMsg === "logout"){
+                localStorage.removeItem("usuario");
+                limpaNavMsg()
+            }
+        }
+    }, [navMsg])
 
     useEffect(() => {
         const mudar = () => {
@@ -101,22 +110,22 @@ function Entrar(){
         if(selecao === '') return (<p className={`text-white text-[2.5vw] md:text-[1.5vw] lg:text-[1vw]`}>Faça login ou cadastre-se escolhendo um card</p>);
         else if(selecao === 'login'){
             return (
-                <div className='flex flex-col items-center justify-center gap-[1vw] md:gap-[0.5vw]'>
+                <div className='flex flex-col transition-all items-center justify-center gap-[1vw] md:gap-[0.5vw]'>
                     <p className={`text-white text-[3vw] md:text-[2vw]`}>Login</p>
-                    <EditBox onFocus={() => resetStyle()} rotulo='Digite seu email' value={email} onChange={setEmail} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${emailRed && "border-[3px] border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${emailRed && "text-red-400 placeholder:text-red-400"}`} />
-                    <EditBox onFocus={() => resetStyle()} rotulo='Digite sua senha' value={senha} onChange={setSenha} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${senhaRed && "border-[3px] border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${senhaRed && "text-red-400 placeholder:text-red-400"}`} />
+                    <EditBox onFocus={() => resetStyle()} rotulo='Digite seu email' value={email} onChange={setEmail} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${emailRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${emailRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
+                    <EditBox onFocus={() => resetStyle()} rotulo='Digite sua senha' value={senha} onChange={setSenha} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${senhaRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${senhaRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
                     <Botao texto='Entrar' onClick={login} style='w-[16vw] h-[8vw] md:w-[10vw] md:h-[4vw]' styleTexto='text-[2vw] md:text-[1vw]' />
-                    {msg && <p className='text-[1.5vw] md:text-[0.8vw] text-white bg-red-600 rounded-full px-[1vw] p-[0.3vw] mb-[-3vw] mt-[0.7vw]'>{msg}</p>}
+                    {msg && <p onClick={() => console.log("emailRed: ", emailRed)} className='text-[1.5vw] md:text-[0.8vw] text-white bg-red-600 rounded-full px-[1vw] p-[0.3vw] mb-[-3vw] mt-[0.7vw]'>{msg}</p>}
                 </div>
             )
         } else {
             return (
                 <div>
-                    <div className='flex flex-col items-center justify-center gap-[1vw] md:gap-[0.5vw]'>
+                    <div className='flex flex-col transition-all items-center justify-center gap-[1vw] md:gap-[0.5vw]'>
                         <p className='text-white text-[3vw] md:text-[2vw]'>Cadastro</p>
-                        <EditBox onFocus={() => resetStyle()} rotulo='Digite seu nome de usuário' value={usuario} onChange={setUsuario} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${usuarioRed && "border-[3px] border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${usuarioRed && "text-red-400 placeholder:text-red-400"}`} />
-                        <EditBox onFocus={() => resetStyle()} rotulo='Digite seu email' value={email} onChange={setEmail} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${emailRed && "border-[3px] border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${emailRed && "text-red-400 placeholder:text-red-400"}`} />
-                        <EditBox onFocus={() => resetStyle()} rotulo='Digite sua senha' value={senha} onChange={setSenha} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${senhaRed && "border-[3px] border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${senhaRed && "text-red-400 placeholder:text-red-400"}`} />
+                        <EditBox onFocus={() => resetStyle()} rotulo='Digite seu nome de usuário' value={usuario} onChange={setUsuario} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${usuarioRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${usuarioRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
+                        <EditBox onFocus={() => resetStyle()} rotulo='Digite seu email' value={email} onChange={setEmail} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${emailRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${emailRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
+                        <EditBox onFocus={() => resetStyle()} rotulo='Digite sua senha' value={senha} onChange={setSenha} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${senhaRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${senhaRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
                         <Botao texto='Entrar' onClick={cadastro} style='w-[16vw] h-[8vw] md:w-[10vw] md:h-[4vw]' styleTexto='text-[2vw] md:text-[1vw]' />
                         {msg && <p className={`text-[1.5vw] md:text-[0.8vw] text-white rounded-full px-[1vw] p-[0.3vw] mb-[-3vw] mt-[0.7vw] bg-green-600 ${(usuarioRed || emailRed || senhaRed) && "bg-red-600"}`}>{msg}</p>}
                     </div>

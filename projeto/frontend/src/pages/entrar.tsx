@@ -3,6 +3,8 @@ import Card from '../components/card'
 import EditBox from '../components/editBox'
 import Botao from '../components/botao'
 import { useNavigate } from "react-router-dom";
+import { getUsers } from "../services/userService"
+import type { User } from "../types/user"
 
 function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => void} ){
 
@@ -11,7 +13,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     const [usuario, setUsuario]  = useState<string>('');
     const [email, setEmail]  = useState<string>('');
     const [senha, setSenha]  = useState<string>('');
-    const [data, setData]  = useState(null);
+    const [data, setData]  = useState<User[]>([]);
     const [usuarioRed, setUsuarioRed] = useState<boolean>(false);
     const [emailRed, setEmailRed] = useState<boolean>(false);
     const [senhaRed, setSenhaRed] = useState<boolean>(false);
@@ -39,12 +41,11 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     }, []);
 
     useEffect(() => {
-        const func = async () => {
-            const res = await fetch('/mock/users.json');
-            const json = await res.json();
-            setData(json);
+        const buscarDados = async () => {
+            const user = await getUsers();
+            setData(user);
         }
-        func();
+        buscarDados();
     }, [])
 
     function handleEnterPress() {
@@ -107,7 +108,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     }
     
     function campo(){
-        if(selecao === '') return (<p className={`text-white text-[2.5vw] md:text-[1.5vw] lg:text-[1vw]`}>Faça login ou cadastre-se escolhendo um card</p>);
+        if(selecao === '') return (<p className={`text-white text-[2.5vw] md:text-[2vw] lg:text-[1.2vw]`}>Faça login ou cadastre-se escolhendo um card</p>);
         else if(selecao === 'login'){
             return (
                 <div className='flex flex-col transition-all items-center justify-center gap-[1vw] md:gap-[0.5vw]'>
@@ -147,16 +148,19 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
                     <div onClick={() => {resetStyle();(selecao === 'login' || selecao === '') ? setSelecao('cadastro') : setSelecao('');}} className={`flex items-center ml-[3.5vw] transition-all`}>
                         <Card card_id={0} titulo='Cadastro' texto='' style={`flex flex-wrap items-center max-w-[305px] max-h-[300px] w-[14.6vw] h-[14.5vw] justify-center ${selecao === 'login' && "bg-[rgb(50,50,50)]"} ${selecao === 'cadastro' && "border border-white"}`} styleText={`text-[1vw] ${selecao === 'login' && "text-[rgb(180,180,180)]"}`} onHover={setOnHoverCard} />
                     </div>
-                </div> :
-                <div className="flex flex-wrap w-full justify-center p-4">
+                </div> 
+                :
+                <div className="flex flex-col w-full items-center justify-center p-4">
                     <div className={`flex justify-center items-center max-w-[1000px] w-[80vw] h-[400px] bg-[rgb(60,60,60)] rounded-[5vw] my-[-2.5vw] sm:my-[-2vw] md:my-[-1.5vw] lg:my-[-1vw] ${(onHoverCard || selecao !== '') && "border border-white"}`}>
                         {campo()}
                     </div>
-                    <div onClick={() => {resetStyle(); (selecao === 'cadastro' || selecao === '') ? setSelecao('login') : setSelecao('');}} className={`flex pt-[5vw] items-center transition-all ${selecao === 'login' && "pt-[0vw] mb-[3vw]"}`}>
-                        <Card card_id={0} titulo='Login' texto='' style={`flex flex-wrap items-center max-w-[305px] max-h-[300px] w-[30vw] h-[30vw] justify-center ${selecao === 'cadastro' && "bg-[rgb(50,50,50)]"} ${selecao === 'login' && "border border-white hover:mt-[16px]"}`} styleText={`text-[2vw] ${selecao === 'cadastro' && "text-[rgb(180,180,180)]"}`} onHover={setOnHoverCard} />
-                    </div>
-                    <div onClick={() => {resetStyle(); (selecao === 'login' || selecao === '') ? setSelecao('cadastro') : setSelecao('');}} className={`flex pt-[5vw] items-center transition-all ${selecao === 'cadastro' && "pt-[0vw] mb-[3vw]"}`}>
-                        <Card card_id={0} titulo='Cadastro' texto='' style={`flex flex-wrap items-center max-w-[305px] max-h-[300px] w-[30vw] h-[30vw] justify-center ${selecao === 'login' && "bg-[rgb(50,50,50)]"} ${selecao === 'cadastro' && "border border-white hover:mt-[16px]"}`} styleText={`text-[2vw] ${selecao === 'login' && "text-[rgb(180,180,180)]"}`} onHover={setOnHoverCard} />
+                    <div className='flex flex-wrap w-full justify-center'>
+                        <div onClick={() => {resetStyle(); (selecao === 'cadastro' || selecao === '') ? setSelecao('login') : setSelecao('');}} className={`flex pt-[5vw] items-center transition-all ${selecao === 'login' && "mt-[-10vw]"}`}>
+                            <Card card_id={0} titulo='Login' texto='' style={`flex flex-wrap items-center max-w-[305px] max-h-[300px] w-[30vw] h-[30vw] justify-center ${selecao === 'cadastro' && "bg-[rgb(50,50,50)]"} ${selecao === 'login' && "border border-white hover:mt-[16px]"}`} styleText={`text-[2vw] ${selecao === 'cadastro' && "text-[rgb(180,180,180)]"}`} onHover={setOnHoverCard} />
+                        </div>
+                        <div onClick={() => {resetStyle(); (selecao === 'login' || selecao === '') ? setSelecao('cadastro') : setSelecao('');}} className={`flex pt-[5vw] items-center transition-all ${selecao === 'cadastro' && "mt-[-10vw]"}`}>
+                            <Card card_id={0} titulo='Cadastro' texto='' style={`flex flex-wrap items-center max-w-[305px] max-h-[300px] w-[30vw] h-[30vw] justify-center ${selecao === 'login' && "bg-[rgb(50,50,50)]"} ${selecao === 'cadastro' && "border border-white hover:mt-[16px]"}`} styleText={`text-[2vw] ${selecao === 'login' && "text-[rgb(180,180,180)]"}`} onHover={setOnHoverCard} />
+                        </div>
                     </div>
                 </div>
             }

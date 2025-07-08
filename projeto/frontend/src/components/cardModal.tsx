@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { PencilIcon, TrashIcon, XMarkIcon, CheckIcon, HandThumbUpIcon, StarIcon } from "@heroicons/react/24/outline";
 import { HandThumbUpIcon as HandThumbUpIconSolid, StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useLocation } from 'react-router-dom'
+import { getXp } from '../services/xpService'
+import type { Xp } from '../types/xp'
 import Confirmar from './confirmar'
 
 function CardModal({ id, onClose }: { id: number; onClose: () => void }){
 
-    const [data, setData] = useState(null);
+    const [data, setData] = useState<Xp>();
     const [conf1, setConf1] = useState<boolean>(false);
     const [conf2, setConf2] = useState<boolean>(false);
     const [conf3, setConf3] = useState<boolean>(false);
@@ -21,10 +23,9 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
     useEffect(() => {
         if(id){
             const buscar = async () => {
-                const res = await fetch('/mock/xp.json');
-                const json = await res.json();
-                setData(json.find(xp => xp.id === id));
-                setTagEdit((json.find(xp => xp.id === id)).tags);
+                const res = await getXp();
+                setData(res.find(xp => xp.id === id));
+                setTagEdit((res.find(xp => xp.id === id)).tags);
             }
             
             buscar();
@@ -72,6 +73,18 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
         // aqui eu vou favoritar o trem
     }
 
+    function remFav(){
+        // aqui eu vou desfavoritar o trem
+    }
+
+    function addLike(){
+        // aqui eu vou desfavoritar o trem
+    }
+
+    function remLike(){
+        // aqui eu vou desfavoritar o trem
+    }
+
     function excluir(){
         console.log("excluir");
         onClose();
@@ -82,11 +95,28 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
             <div className="relative bg-[rgb(100,100,100)] p-8 rounded-lg w-[600px] max-h-screen overflow-auto">
                 {!editMode ? <>
                     <button onClick={onClose} className="absolute text-white font-bold p-[3px] top-[20px] right-[16px] bg-gray-600 rounded-full"><XMarkIcon  className="w-7 h-7" /></button>
-                    <button onClick={() => addFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIcon  className="w-7 h-7" /></button>
+                    { user && data && !(data.id_user === user.id) && <>
+                        {location.pathname === '/me' ? 
+                            <button onClick={() => remFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                            :
+                            <>
+                            {(user.likes.find(e => e === data.id)) ?
+                                <button onClick={() => remLike()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIconSolid  className="w-7 h-7" /></button>
+                                :
+                                <button onClick={() => addLike()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIcon  className="w-7 h-7" /></button>
+                            }
+                            {(user.favoritos.find(e => e.id === data.id)) ?
+                                <button onClick={() => remFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                                :
+                                <button onClick={() => addFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIcon  className="w-7 h-7" /></button>
+                            }
+                            </>
+                        }
+                    </>}
                     {location.pathname === "/me" && data && data.id_user === user.id && <>
-                        <button onClick={() => setConf1(true)} className="absolute text-white font-bold p-[6px] top-[20px] right-[105px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
+                        <button onClick={() => setConf1(true)} className="absolute text-white font-bold p-[6px] top-[20px] right-[60px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
                         {conf1 && <Confirmar titulo="Tem certeza que deseja editar?" texto="Essa é uma experiencia pública, ao edita-la voce perderá a contagem de likes" func={() => setEditMode(true)} close={() => setConf1(false)} />}
-                        <button onClick={() => setConf2(true)} className="absolute text-red-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><TrashIcon className="w-5 h-5" /></button>
+                        <button onClick={() => setConf2(true)} className="absolute text-red-400 font-bold p-[6px] top-[20px] right-[105px] bg-gray-600 rounded-full"><TrashIcon className="w-5 h-5" /></button>
                         {conf2 && <Confirmar titulo="Tem certeza que deseja excluir?" texto="Voce está preste a deletar essa experiência para sempre, essa ação não poderá ser desfeita" func={() => excluir()} close={() => setConf2(false)} />}
                     </>}
                     {data ? (

@@ -2,7 +2,7 @@ import CardModal from './cardModal'
 import { useState } from 'react'
 import { HandThumbUpIcon } from "@heroicons/react/24/solid";
 
-function Card(props: {card_id: number, titulo: string, like: number, texto: string, style?: string, styleText?: string, onHover?: (e: boolean) => void}){
+function Card(props: {card_id: number, titulo: string, like?: number, texto: string, style?: string, styleText?: string, onHover?: (e: boolean) => void}){
 
     const [mostraModal, setMostraModal] = useState(false);
 

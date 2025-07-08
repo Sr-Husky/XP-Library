@@ -2,6 +2,7 @@ import Home from './home'
 import CardModal from '../components/cardModal'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getUsers } from '../services/userService'
 
 function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }){
 
@@ -27,9 +28,11 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
     useEffect(() => {
         if(!user) navigate('/entrar');
         const buscar = async () => {
-            const res = await fetch('/mock/users.json');
-            const json = await res.json();
-            if((json.find((e) => e.id === user.id)).logado === false) navigate('/entrar');
+            const res = await getUsers();
+            if((res.find((e) => e.id === user.id)).logado === false) {
+                localStorage.removeItem("usuario");
+                navigate('/entrar');
+            }
         }
         buscar();
     },[])

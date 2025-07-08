@@ -2,24 +2,28 @@ import Card from '../components/card'
 import SearchBox from '../components/editBox'
 import { useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getXp } from '../services/xpService'
+import type { Xp } from '../types/xp'
 
 function Home({ user, id_user, favoritos, navMsg, limpaNavMsg }: { user?: boolean, id_user?:number, favoritos?:any[], navMsg?:string, limpaNavMsg?: () => void }){
 
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<Xp[]>([]);
     const [texto, setTexto] = useState("");
     const [tags, setTag] = useState<string[]>([]);
     const [enter, setEnter] = useState(false);
     const navigate = useNavigate();
     
     useEffect(() => {
-        const buscar = async () => {
-            var res = await fetch('/mock/xp.json');
-            var json = await res.json();
-            if(user) setData(json.filter(xp => id_user === xp.id_user));
-            else setData(json);
+        const buscarDados = async () => {
+            try {
+                const xp = await getXp();
+                if(user) setData(xp.filter(xp => id_user === xp.id_user));
+                else setData(xp);
+            } catch (error) {
+                console.error("Erro ao buscar usuários:", error);
+            }
         };
-
-        buscar();
+        buscarDados();
     }, []);
 
     useEffect(() => {
@@ -65,7 +69,7 @@ function Home({ user, id_user, favoritos, navMsg, limpaNavMsg }: { user?: boolea
     return (
         <>
             <div className='flex justify-center'>
-                <SearchBox rotulo='Buscar...' value={texto} onChange={setTexto} onEnter={handleEnterPress} />
+                <SearchBox style='mt-[20px] mx-[40px] ' rotulo='Buscar...' value={texto} onChange={setTexto} onEnter={handleEnterPress} />
             </div>
             <div className='flex justify-center w-full'>
                 <div className='flex flex-wrap gap-2 max-w-[1000px] pt-4'>

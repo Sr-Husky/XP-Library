@@ -1,4 +1,5 @@
 import type { Xp } from './xp'
+import type { Fav } from './fav'
 
 export interface User {
     id: number,
@@ -8,5 +9,6 @@ export interface User {
     data: string,
     logado: boolean,
     like: number[],
-    favoritos: Xp[]
+    favoritos: Fav[],
+    xp: Xp[]
 }

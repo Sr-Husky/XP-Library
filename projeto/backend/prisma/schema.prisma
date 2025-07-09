@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -17,10 +16,10 @@ model User {
   logado    Boolean
   like      Int[]
   favoritos Fav[]     @relation("Favoritos")
-  xp        XP[]      @relation("Experiencias")
+  xp        Xp[]      @relation("Experiencias")
 }
 
-model XP {
+model Xp {
   id        Int       @id @default(autoincrement())
   id_user   Int
   user      User      @relation("Experiencias", fields: [id_user], references: [id])

@@ -29,25 +29,27 @@
         "likes": [4, 6],
         "favoritos": [
             {
-                "id": 3,
-                "id_user": 2,
+                "id": 1,
+                "id_user": 3,
+                "autor": "Biu",
+                "autorId": 2,
                 "texto": "Esse vai ser um texto medio, nem muito grande nem muito pequeno, pra ver como fica.",
                 "contexto": "Esse é o contexto que normalmente vai ser um textão bem grande falando de todo o contexto por trás da experiencia, é onde a pessoa vai contar os detalhes de tudo que estava acontecendo em ordem cronologica de forma que o leitor consiga visualizar a situação e entender o motivo de cada ação do narrador, eu só vou copiar e colar esse texto em todos os objetos pois eu não vou ser doido de escrever um texto gigantesco desse para cada um só pra testar se o texto está aparecendo certinho no modal.",
                 "tags": ["#tag1", "#tag2", "#tag3"],
+                "dataFav": "2025-07-03T03:00:00Z",
                 "data": "2025-07-03T03:00:00Z",
-                "mod": "2025-07-03T03:00:00Z",
-                "pub": true,
                 "likes": 11
             },
             {
-                "id": 4,
-                "id_user": 2,
+                "id": 2,
+                "id_user": 3,
+                "autor": "Biu",
+                "autorId": 2,
                 "texto": "Mais um texto pequeno.",
                 "contexto": "Esse é o contexto que normalmente vai ser um textão bem grande falando de todo o contexto por trás da experiencia, é onde a pessoa vai contar os detalhes de tudo que estava acontecendo em ordem cronologica de forma que o leitor consiga visualizar a situação e entender o motivo de cada ação do narrador, eu só vou copiar e colar esse texto em todos os objetos pois eu não vou ser doido de escrever um texto gigantesco desse para cada um só pra testar se o texto está aparecendo certinho no modal.",
                 "tags": ["#tag1", "#tag2", "#tag3"],
+                "dataFav": "2025-07-03T04:00:00Z",
                 "data": "2025-07-03T04:00:00Z",
-                "mod": "2025-07-03T04:00:00Z",
-                "pub": true,
                 "likes": 15
             }
         ]

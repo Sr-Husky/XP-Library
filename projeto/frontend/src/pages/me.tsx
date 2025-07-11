@@ -2,14 +2,16 @@ import Home from './home'
 import CardModal from '../components/cardModal'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getUsers } from '../services/userService'
+import { getUser } from '../services/userService'
+import type { User } from '../types/user'
 
 function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }){
 
     const navigate = useNavigate();
     const userStr = localStorage.getItem("usuario");
-    const user = (userStr) ? JSON.parse(userStr) : null;
+    const local = (userStr) ? JSON.parse(userStr) : null;
     const [modal, setModal] = useState<boolean>(false);
+    const [user, setUser] = useState<User>();
 
     useEffect(() => {
         if(navMsg){
@@ -26,20 +28,21 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
     }, [navMsg])
 
     useEffect(() => {
-        if(!user) navigate('/entrar');
-        const buscar = async () => {
-            const res = await getUsers();
-            if((res.find((e) => e.id === user.id)).logado === false) {
+        if(!local) navigate('/entrar');
+        const validar = async () => {
+            const res = await getUser(local.id);
+            if(!res.logado){
                 localStorage.removeItem("usuario");
                 navigate('/entrar');
             }
+            setUser(res);
         }
-        buscar();
+        validar();
     },[])
 
     return (
         <>
-            {user && <Home user={true} id_user={user.id} favoritos={user.favoritos} />}
+            {user && <Home user={true} />}
             {modal && <CardModal id={0} onClose={() => setModal(false)} />}
         </>
     )

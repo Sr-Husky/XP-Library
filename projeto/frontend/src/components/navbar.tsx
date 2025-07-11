@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect }  from 'react'
 import { HomeIcon, UserIcon, ArrowRightOnRectangleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'
-import { getUsers } from '../services/userService'
+import { getUser } from '../services/userService'
 import Botao from './botao'
 
 function Navbar({ func }: { func: (tipo: string) => void }) {
@@ -9,6 +9,9 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
     const location = useLocation();
     const navigate = useNavigate();
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+    const userStr = localStorage.getItem("usuario");
+    let local = (userStr) ? JSON.parse(userStr) : null;
 
     useEffect(() => {
         const mudar = () => {
@@ -19,23 +22,20 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
         return () => window.removeEventListener("resize", mudar);
     }, []);
 
-    const userStr = localStorage.getItem("usuario");
-    let user = (userStr) ? JSON.parse(userStr) : null;
-
     useEffect(() => {
-        if(user){
-            const buscar = async () => {
-                const res = await getUsers();
-                if((res.find((e) => e.id === user.id)).logado === false) user = false;
+        if(local){
+            const validar = async () => {
+                const res = await getUser(local.id);
+                if(!res.logado) local = false;
             }
-            buscar();
+            validar();
         }
     },[])
 
     return (
         <div className="w-full bg-[rgb(40,40,40)] shadow-xl h-[70px] md:h-16 fixed top-0 z-50 text-sm md:text-lg">
             {size.width >= 1200 ? <>
-                {user ? <>
+                {local ? <>
                     <Botao texto='Home' onClick={() => navigate('/')} style='absolute left-[1vw] rounded-[10px] border-[0px] bg-[rgb(80,80,80)] hover:bg-[rgb(50,50,50)] top-1/2 -translate-y-1/2 text-white w-[100px] h-[33px] hover:font-normal' styleTexto=' lg:text-[2vw] xl:text-[1.5vw] 2xl:text-[1vw]' />
                     <Botao texto='Perfil' onClick={() => navigate('/me')} style='absolute left-[12vw] 2xl:left-[180px] rounded-[10px] border-[0px] bg-[rgb(80,80,80)] hover:bg-[rgb(50,50,50)] top-1/2 -translate-y-1/2 text-white w-[100px] h-[33px] hover:font-normal' styleTexto=' lg:text-[2vw] xl:text-[1.5vw] 2xl:text-[1vw]' />
                     <Botao texto='Logout' onClick={() => func("logout")} style='absolute right-[16px] top-1/2 -translate-y-1/2 text-white bg-red-500 border-[0px] w-[100px] h-[33px] hover:bg-red-600 hover:font-normal' styleTexto=' lg:text-[2vw] xl:text-[1.5vw] 2xl:text-[1vw]' />
@@ -51,7 +51,7 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
                     </>} 
                 </>}
             </> : <>
-                {user ? <>
+                {local ? <>
                     <button onClick={() => navigate('/')} className="absolute left-[16px] rounded-[10px] bg-[rgb(80,80,80)] hover:bg-[rgb(50,50,50)] top-1/2 -translate-y-1/2 text-white w-[50px] h-[50px]"><HomeIcon  className="w-full h-7" /></button>
                     <button onClick={() => navigate('/me')} className="absolute left-[80px] rounded-[10px] bg-[rgb(80,80,80)] hover:bg-[rgb(50,50,50)] top-1/2 -translate-y-1/2 text-white w-[50px] h-[50px]"><UserIcon  className="w-full h-7" /></button>
                     <button onClick={() => func("logout")} className="absolute right-[16px] rounded-[10px] bg-[rgb(255,50,50)]  hover:bg-[rgb(210,0,0)] top-1/2 -translate-y-1/2 text-white w-[50px] h-[50px]"><ArrowLeftOnRectangleIcon  className="w-full h-7" /></button>

@@ -1,5 +1,5 @@
 export interface Xp {
-    id: number,
+    id?: number,
     id_user: number,
     texto: string,
     contexto: string,

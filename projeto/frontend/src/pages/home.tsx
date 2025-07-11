@@ -2,25 +2,32 @@ import Card from '../components/card'
 import SearchBox from '../components/editBox'
 import { useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getXp } from '../services/xpService'
+import { getPublicXp } from '../services/xpService'
+import { getUser } from '../services/userService'
 import type { Xp } from '../types/xp'
+import type { Fav } from '../types/fav'
 
-function Home({ user, id_user, favoritos, navMsg, limpaNavMsg }: { user?: boolean, id_user?:number, favoritos?:any[], navMsg?:string, limpaNavMsg?: () => void }){
+function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?:string, limpaNavMsg?: () => void }){
 
     const [data, setData] = useState<Xp[]>([]);
+    const [fav, setFav] = useState<Fav[]>([]);
     const [texto, setTexto] = useState("");
     const [tags, setTag] = useState<string[]>([]);
     const [enter, setEnter] = useState(false);
     const navigate = useNavigate();
+
+    const userStr = localStorage.getItem("usuario");
+    const local = (userStr) ? JSON.parse(userStr) : null;
     
     useEffect(() => {
         const buscarDados = async () => {
-            try {
-                const xp = await getXp();
-                if(user) setData(xp.filter(xp => id_user === xp.id_user));
-                else setData(xp);
-            } catch (error) {
-                console.error("Erro ao buscar usuários:", error);
+            if(user){
+                const res = await getUser(local.id);
+                setData(res.xp);
+                setFav(res.favoritos);
+            } else {
+                const xp = await getPublicXp();
+                setData(xp);
             }
         };
         buscarDados();
@@ -52,16 +59,6 @@ function Home({ user, id_user, favoritos, navMsg, limpaNavMsg }: { user?: boolea
         tags.some(tagFiltro => xp.tags.map((t: string) => t.toLowerCase()).includes(tagFiltro)))
     );
 
-    let favFiltrados = [];
-    if(favoritos){
-        favFiltrados = favoritos.filter(xp =>
-            (texto.trim()[0] === '#' ||
-            xp.texto.toLowerCase().includes(texto.trim().toLowerCase())) &&
-            (tags.length === 0 || 
-            tags.some(tagFiltro => xp.tags.map((t: string) => t.toLowerCase()).includes(tagFiltro)))
-        );
-    }
-
     function handleEnterPress() {
         setEnter(true);
     }
@@ -80,27 +77,27 @@ function Home({ user, id_user, favoritos, navMsg, limpaNavMsg }: { user?: boolea
                     ))}
                 </div>
             </div>
-            {user &&
+            {user && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                     <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Minhas experiências</h1>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                 </div>
-            }
+            </>}
             <div className='flex justify-center flex-wrap p-[20px]'>
                 {filtrados.map(xp => (
                     <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
                 ))}
             </div>
-            {(favFiltrados.length !== 0) && <>
+            {(user && fav.length) && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                     <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Favoritos</h1>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                 </div>
                 <div className='flex justify-center flex-wrap p-[20px]'>
-                    {favFiltrados.map(xp => (
-                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
+                    {fav.map(xp => (
+                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`${xp.autor}`} texto={xp.texto} />
                     ))}
                 </div>
             </>}

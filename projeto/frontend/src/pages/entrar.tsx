@@ -3,8 +3,7 @@ import Card from '../components/card'
 import EditBox from '../components/editBox'
 import Botao from '../components/botao'
 import { useNavigate } from "react-router-dom";
-import { getUsers } from "../services/userService"
-import type { User } from "../types/user"
+import { userLogin } from "../services/userService"
 
 function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => void} ){
 
@@ -13,7 +12,6 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     const [usuario, setUsuario]  = useState<string>('');
     const [email, setEmail]  = useState<string>('');
     const [senha, setSenha]  = useState<string>('');
-    const [data, setData]  = useState<User[]>([]);
     const [usuarioRed, setUsuarioRed] = useState<boolean>(false);
     const [emailRed, setEmailRed] = useState<boolean>(false);
     const [senhaRed, setSenhaRed] = useState<boolean>(false);
@@ -40,14 +38,6 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
         return () => window.removeEventListener("resize", mudar);
     }, []);
 
-    useEffect(() => {
-        const buscarDados = async () => {
-            const user = await getUsers();
-            setData(user);
-        }
-        buscarDados();
-    }, [])
-
     function handleEnterPress() {
         if(selecao == 'login') login();
         else cadastro();
@@ -70,18 +60,14 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
         return true;
     }
 
-    function login(){
-        let valido = true; let user;
-        if(!validaEmail()) {setMsg("Digite um email válido"); setEmailRed(true); valido=false;}
-        else { 
-            user = data.find((e) => e.email === email);
-            if(!user) {setMsg("Usuário não registrado"); setEmailRed(true); valido=false;}
-            if(user) if(user.senha != senha) {setMsg("Senha incorreta"); setSenhaRed(true); valido=false;}
-            if(valido){
-                localStorage.setItem("usuario", JSON.stringify(user));
-                navigate('/me');
-            }
-        }
+    const login = async () => {
+        if(!validaEmail()) {setEmailRed(true); return setMsg("Digite um email válido");}
+        const user = await userLogin(email, senha);
+        if(user === 404) {setEmailRed(true); return setMsg("Usuário não registrado");}
+        if(user === 401) {setSenhaRed(true); return setMsg("Senha incorreta");}
+        if(!user) return setMsg("Erro desconhecido, tente novamente");
+        localStorage.setItem("usuario", JSON.stringify({ id: user.id }));
+        navigate('/me');
     }
 
     function cadastro(){

@@ -1,4 +1,3 @@
-import Botao from './botao'
 import { useEffect, useState } from 'react'
 import { XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
 

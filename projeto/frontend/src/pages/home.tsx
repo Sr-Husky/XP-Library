@@ -97,7 +97,7 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?:string, l
                 </div>
                 <div className='flex justify-center flex-wrap p-[20px]'>
                     {fav.map(xp => (
-                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`${xp.autor}`} texto={xp.texto} />
+                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`${xp.autor}`} texto={xp.texto} fav={true} />
                     ))}
                 </div>
             </>}

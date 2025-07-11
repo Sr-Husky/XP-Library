@@ -1,20 +1,24 @@
 import { useState, useEffect, useRef } from 'react'
-import { PencilIcon, TrashIcon, XMarkIcon, CheckIcon, HandThumbUpIcon, StarIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon, XMarkIcon, CheckIcon, HandThumbUpIcon, StarIcon, LockClosedIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 import { HandThumbUpIcon as HandThumbUpIconSolid, StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useLocation } from 'react-router-dom'
 import { getXp, criarXp, atualizaXp, removeXp } from '../services/xpService'
 import { getUser } from '../services/userService';
+import { like, favoritar, desfavoritar, deslike } from '../services/interactService';
 import type { Xp } from '../types/xp'
 import type { User } from '../types/user'
 import Confirmar from './confirmar'
+import type { Fav } from '../types/fav';
 
-function CardModal({ id, onClose }: { id: number; onClose: () => void }){
+function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?: boolean}){
 
     const [data, setData] = useState<Xp>();
+    const [favData, setFavData] = useState<Fav>();
     const [user, setUser] = useState<User>();
     const [conf1, setConf1] = useState<boolean>(false);
     const [conf2, setConf2] = useState<boolean>(false);
     const [conf3, setConf3] = useState<boolean>(false);
+    const [conf4, setConf4] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false)
     const [tagEdit, setTagEdit] = useState<string[]>([])
     const [textoEdit, setTextoEdit] = useState<string>("")
@@ -26,9 +30,9 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
     const local = (userStr) ? JSON.parse(userStr) : null;
 
     useEffect(() => {
-        
         const buscarUser = async () => {
             const res = await getUser(local.id);
+            if(fav) setFavData(res.favoritos.find(e => e.id === id));
             setUser(res);
         }
         buscarUser();
@@ -79,7 +83,6 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
     }
 
     function editar(pub?: boolean){
-        // aqui eu vou editar o trem ou criar um trem novo
         if(!id){
             const novo: Xp = {
                 id_user: user.id,
@@ -112,20 +115,22 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
 
     }
 
+    function isFav(){
+        if(!fav) return user.favoritos.find(e => e.autorId === data.id_user && e.texto === data.texto && e.contexto === data.contexto && e.data === data.mod);
+        else return favData;
+    }
+
     function addFav(){
-        //console.log(user.favoritos.find(e => e.autorId === data.id_user && e.texto === data.texto && e.contexto === data.contexto));
-    }
-
-    function remFav(){
-        // aqui eu vou desfavoritar o trem
-    }
-
-    function addLike(){
-        // aqui eu vou botar o like no trem
-    }
-
-    function remLike(){
-        // aqui eu vou tirar o like do trem
+        favoritar({
+            id_user: user.id,
+            autor: data.user.usuario,
+            autorId: data.id_user,
+            texto: data.texto,
+            contexto: data.contexto,
+            tags: data.tags,
+            data: data.mod,
+            likes: data.likes
+        })
     }
 
     function excluir(){
@@ -140,16 +145,16 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
                     <button onClick={onClose} className="absolute text-white font-bold p-[3px] top-[20px] right-[16px] bg-gray-600 rounded-full"><XMarkIcon  className="w-7 h-7" /></button>
                     { local && data && !(data.id_user === local.id) && <>
                         {location.pathname === '/me' ? 
-                            <button onClick={() => remFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                            <button onClick={() => desfavoritar(isFav().id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
                             :
                             <> {user && <>
                                 {(user.like.find(e => e === id)) ?
-                                    <button onClick={() => remLike()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIconSolid  className="w-7 h-7" /></button>
+                                    <button onClick={() => deslike(user.id, data.id, user.like.filter(e => e !== data.id))} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIconSolid  className="w-7 h-7" /></button>
                                     :
-                                    <button onClick={() => addLike()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIcon  className="w-7 h-7" /></button>
+                                    <button onClick={() => like(user.id, data.id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIcon  className="w-7 h-7" /></button>
                                 }
-                                {(user.favoritos.find(e => e.autorId === data.id_user && e.texto === data.texto && e.contexto === data.contexto)) ?
-                                    <button onClick={() => remFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                                {(isFav()) ?
+                                    <button onClick={() => desfavoritar(isFav().id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
                                     :
                                     <button onClick={() => addFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIcon  className="w-7 h-7" /></button>
                                 }
@@ -157,20 +162,26 @@ function CardModal({ id, onClose }: { id: number; onClose: () => void }){
                         }
                     </>}
                     {location.pathname === "/me" && data && data.id_user === local.id && <>
-                        <button onClick={() => setConf1(true)} className="absolute text-white font-bold p-[6px] top-[20px] right-[60px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
+                        <button onClick={() => setConf1(true)} className="absolute text-yellow-400 font-bold p-[6px] top-[20px] right-[60px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
                         {conf1 && <Confirmar titulo="Tem certeza que deseja editar?" texto="Essa é uma experiencia pública, ao edita-la voce perderá a contagem de likes" func={() => setEditMode(true)} close={() => setConf1(false)} />}
                         <button onClick={() => setConf2(true)} className="absolute text-red-400 font-bold p-[6px] top-[20px] right-[105px] bg-gray-600 rounded-full"><TrashIcon className="w-5 h-5" /></button>
                         {conf2 && <Confirmar titulo="Tem certeza que deseja excluir?" texto="Voce está preste a deletar essa experiência para sempre, essa ação não poderá ser desfeita" func={() => excluir()} close={() => setConf2(false)} />}
+                        {data.pub ? <>  
+                            <button onClick={() => editar(false)} className="absolute text-green-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><GlobeAltIcon className="w-5 h-5" /></button>
+                        </> : <>
+                            <button onClick={() => setConf4(true)} className="absolute text-blue-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><LockClosedIcon className="w-5 h-5" /></button>
+                            {conf4 && <Confirmar titulo="Tem certeza que deseja tornar público" texto="Ao tornar essa experiência pública, ela ficará disponível para qualquer pessoa, podendo ser salva por outros usuários" func={() => editar(true)} close={() => setConf4(false)} />}
+                        </>}
                     </>}
-                    {data ? (
-                        <>
-                            <p className="text-white pb-4 font-bold">Usuário {data.id_user}</p>
-                            <p className="text-white">{data.texto}</p>
+                    {((!fav && data) || (fav && favData)) ?  (
+                        <> 
+                            <p className="text-white pb-4 font-bold">{fav ? favData.autor : data.user.usuario}</p>
+                            <p className="text-white">{fav ? favData.texto : data.texto}</p>
                             <hr className="my-6 border-white" />
-                            <p className="text-white">{data.contexto}</p>
+                            <p className="text-white">{fav ? favData.contexto : data.contexto}</p>
                             <hr className="my-6 border-white" />
                             <div className='flex flex-wrap gap-2'>
-                                {data.tags.map((t, index) => (
+                                {(fav ? favData : data).tags.map((t, index) => (
                                     <p key={index} className="text-white bg-white/10 px-3 py-1 rounded-full">
                                         {t}
                                     </p>

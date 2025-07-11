@@ -8,7 +8,8 @@ export class XpService {
 
   async getXp(id: number){
     return this.prisma.xp.findUnique({
-      where: {id: id}
+      where: {id: id},
+      include: {user: true}
     })
   }
 

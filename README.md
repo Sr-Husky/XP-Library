@@ -154,101 +154,107 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
 
 ---
 
-### **Semana 3 — Integração Front + API**
+### **Semana 3 — Fortalecimento e Segurança da Aplicação**
 
-**🗓️ Período: 15/07 (segunda) a 21/07 (domingo)**  
-**🎯 Objetivo da semana:** Frontend totalmente funcional, conectado com a API — com consumo real de dados, criação, edição e interação com experiencias.
+**🗓️ Período: 15/07 (terça) a 21/07 (segunda)** **🎯 Objetivo da semana:** Implementar um sistema de autenticação e autorização completo, modernizar o gerenciamento de estado do frontend com uma biblioteca de ponta (React Query) e iniciar a cultura de testes no projeto.
 
-#### 📌 Terça (15/07) — **Configuração de Consumo da API**
-- Criar pasta `/services/api.ts`
-- Definir funções reutilizáveis (ex: `getPublicexperiencias`, `postExperiencia`, etc)
-- Criar um `env.ts` para gerenciar a baseURL da API
-- Testar integração com console.log no front
+#### 📌 Segunda (15/07) — **Setup da Autenticação no Backend**
+- **Foco:** Backend (NestJS)
+- Instalar dependências de autenticação (`@nestjs/passport`, `@nestjs/jwt`, `passport-jwt`).
+- Criar o `AuthModule`.
+- Implementar a `JwtStrategy` e o `AuthService` com métodos para `login` (gerar tokens) e `validateUser`.
+- Criar a rota `POST /login` no `AuthController`.
+- Criar um `JwtAuthGuard` para proteger rotas.
 
-#### 📌 Quarta (16/07) — **Integração da Página Inicial**
-- Conectar o `GET /experiencias/publicas`
-- Adicionar busca e filtro por tag no front (inputs que disparam o fetch)
-- Exibir os dados reais na UI com loading/spinner
+#### 📌 Terça (16/07) — **Integração da Autenticação no Frontend**
+- **Foco:** Frontend (React)
+- Conectar a página `/entrar` para chamar os endpoints reais da API.
+- Criar um Contexto de Autenticação (`AuthContext`) ou um hook para gerenciar o estado do usuário e os tokens (salvando no `localStorage`).
+- Implementar rotas protegidas com React Router DOM, que redirecionam para `/login` caso o usuário não esteja autenticado.
 
-#### 📌 Quinta (17/07) — **Integração de Curtidas e Favoritos**
-- Adicionar botões de curtir/favoritar nos cards
-- Chamar rotas `POST /experiencias/:id/curtir` e `.../favoritar`
-- Mostrar contagem de curtidas em tempo real
-- Feedback visual ao clicar (ex: botão mudando de cor)
+#### 📌 Quarta (17/07) — **Autorização por Roles e Refino no Backend**
+- **Foco:** Backend (NestJS)
+- Adicionar um campo `role` (`'USER'` ou `'ADMIN'`) ao `schema.prisma` do `Usuario`.
+- Criar um `RolesGuard` que verifica os cargos permitidos para uma rota.
+- Proteger rotas críticas, como `DELETE /experiencias/:id`, permitindo o acesso apenas ao dono da experiência ou a um admin.
+- Implementar o fluxo de "Refresh Token" para manter o usuário logado de forma segura.
 
-#### 📌 Sexta (18/07) — **Minhas experiencias e Favoritas**
-- Na página `/minhas-experiencias`, integrar com `GET /experiencias` (do "usuário")
-- Mostrar somente experiencias com `usuario_id` fixo (mockado no front)
-- `/favoritas`: consumir lista de favoritas filtrando no front
-- Exibir também botão de editar e deletar
+#### 📌 Quinta (18/07) — **Introdução ao React Query e Refatoração da Home**
+- **Foco:** Frontend (React)
+- Instalar `TanStack Query (React Query)`.
+- Configurar o `QueryClientProvider` na raiz da aplicação.
+- Refatorar a busca de dados da página inicial (`/`), trocando os `useEffect`s e `useState`s por um único hook `useQuery`.
+- Implementar estados de `isLoading` (ex: exibir um spinner) e `isError` (exibir mensagem de erro) de forma declarativa.
 
-#### 📌 Sábado (19/07) — **Criação e Edição de Experiencia**
-- Conectar `/nova` com o `POST /experiencias`
-- Ao editar, preencher o form com dados da Experiencia e enviar `PUT /experiencias/:id`
-- Redirecionar após salvar
+#### 📌 Sexta (19/07) — **Refatoração Completa com React Query (Mutations)**
+- **Foco:** Frontend (React)
+- Refatorar todas as ações que modificam dados (criar, editar, deletar, curtir, favoritar) para usar o hook `useMutation`.
+- Implementar invalidação de queries (`queryClient.invalidateQueries`) após uma `mutation` de sucesso para que a UI seja atualizada automaticamente com os novos dados do servidor.
+- **Desafio opcional:** Implementar uma "Atualização Otimista" (Optimistic Update) na ação de curtir para que a UI responda instantaneamente.
 
-#### 📌 Domingo (20/07) — **Exclusão e UX Final**
-- Implementar botão "Excluir" → chama `DELETE /experiencias/:id`
-- Adicionar modais de confirmação (pode ser nativo ou custom)
-- Garantir feedback visual em todas ações (loading, sucesso, erro)
+#### 📌 Sábado (20/07) — **Escrevendo os Primeiros Testes (Backend)**
+- **Foco:** Backend (NestJS)
+- Escrever testes unitários para as regras de negócio de um dos seus `services` (ex: `AuthService`).
+- Escrever um teste de integração (E2E) para um `controller`, usando Supertest para simular requisições HTTP e validar as respostas da API, como o status code e o corpo da resposta.
 
-#### 📌 Segunda (21/07) — **🧪 Revisão e Testes**
-- Revisar todas as páginas com dados reais
-- Criar lista de melhorias ou bugs encontrados
-- Fazer post no LinkedIn
+#### 📌 Domingo (21/07) — **🧪 Revisão da Semana e Testes no Frontend**
+- Revisar todo o fluxo de autenticação e o uso do React Query.
+- Escrever testes para componentes React com **Vitest** e **React Testing Library**.
+- Começar testando um componente simples (ex: `Button`) e depois um que consuma um hook (ex: um `CardExperiencia` que use dados mockados).
+- Fazer o post da semana no LinkedIn, focando no aprendizado sobre autenticação JWT e gerenciamento de estado moderno.
 
---- 
+---
 
-### **Semana 4 — Acabamentos**
+### **Semana 4 — Nível Profissional: Automação e Deploy**
 
-**🗓️ Período: 22/07 (segunda) a 28/07 (domingo)**  
-**🎯 Objetivo da semana:** Ter o sistema rodando 100% em ambiente de produção (Docker + Nginx), com ajustes finais na experiência do usuário, documentação técnica completa e repositório GitHub pronto.
+**🗓️ Período: 22/07 (terça) a 28/07 (segunda)** **🎯 Objetivo da semana:** Automatizar o processo de teste e deploy com CI/CD, configurar um ambiente de produção robusto e profissional com Nginx e HTTPS, e finalizar a documentação do projeto para transformá-lo em um portfólio de alto impacto.
 
-#### 📌 Terça (22/07) — **Preparação para Produção**
-- Gerar build do frontend com `vite build`
-- Compilar backend com `npm run build`
-- Criar estrutura de produção:
-    - `/frontend/dist`
-    - `/backend/dist`
-- Separar `.env` para produção e desenvolvimento
+#### 📌 Segunda (22/07) — **Preparação para Produção e Docker Compose Final**
+- **Foco:** Docker
+- Criar os builds de produção do front (`npm run build` no React) e do back (`npm run build` no Nest).
+- Criar um `Dockerfile` multi-stage para cada serviço (front e back) para gerar imagens otimizadas e menores.
+- Criar um arquivo `docker-compose.prod.yml` que orquestra os serviços de produção: Nginx, NestJS (rodando o build de `/dist`), e PostgreSQL (com volume persistente).
 
-#### 📌 Quarta (23/07) — **Docker Compose Final**
-- Criar/ajustar `docker-compose.prod.yml` com:
-    - React servido via Nginx (`/`)
-    - NestJS backend (`/api`)
-    - PostgreSQL
-- Usar `Dockerfile` separado para cada serviço
-- Garantir rede entre os containers
+#### 📌 Terça (23/07) — **Configuração do Nginx como Reverse Proxy**
+- **Foco:** Nginx e Docker
+- Escrever o arquivo de configuração `nginx.conf`.
+- Configurar o Nginx para:
+    1. Servir os arquivos estáticos do build do React na rota raiz (`/`).
+    2. Atuar como um reverse proxy, redirecionando todas as chamadas para `/api/*` para o container do NestJS.
+- Testar toda a aplicação rodando localmente com `docker-compose -f docker-compose.prod.yml up`.
 
-#### 📌 Quinta (24/07) — **Configuração do Nginx**
-- Criar `nginx.conf`:
-    - Redirecionar `/api` → NestJS
-    - Servir arquivos estáticos do `frontend/dist`
-- Adicionar container nginx ao `docker-compose`
-- Testar todos os roteamentos:
-    - Front acessível em `/`
-    - API funcional via `/api`
+#### 📌 Quarta (24/07) — **CI/CD Parte 1: Automação de Testes (GitHub Actions)**
+- **Foco:** GitHub Actions
+- Criar a pasta `.github/workflows` no seu repositório.
+- Criar um workflow em YAML (`test.yml`) que é acionado a cada `push` ou `pull_request`.
+- O workflow deve:
+    - Fazer o checkout do código.
+    - Instalar as dependências do front e do back.
+    - Rodar os testes (`npm test`) de ambos os projetos.
+    - Exibir um status de sucesso ou falha no GitHub.
 
-#### 📌 Sexta (25/07) — **Ajustes Finais na UX/UI**
-- Revisar responsividade (mobile/tablet)
-- Melhorar UX:
-    - Feedback visual de ações (curtir, favoritar, excluir)
-    - Estados de carregamento (spinners)
-    - Validações básicas no front
+#### 📌 Quinta (25/07) — **CI/CD Parte 2: Automação do Deploy (GitHub Actions)**
+- **Foco:** GitHub Actions e DevOps
+- Criar um segundo workflow (`deploy.yml`) que é acionado apenas em `push` para a branch `main`.
+- O workflow deve:
+    - Fazer o build das imagens Docker do front e do back.
+    - Fazer login em um registro de containers (Docker Hub ou GitHub Container Registry).
+    - Enviar (push) as imagens para o registro.
 
-#### 📌 Sábado (26/07) — **Organização**
-- Organizar tudo que for necessário em:
-	- Estrutura de pastas de todo o projeto
-	- Estrutura da logica de comunicação do back com o BD
-	- Estrutura do código (função, componentes, serviços etc.)
+#### 📌 Sexta (26/07) — **Deploy Real em Servidor com HTTPS**
+- **Foco:** Infraestrutura e Segurança
+- (Assumindo que vou ter um domínio e um servidor/VPS) Apontar seu domínio para o IP do servidor.
+- Executar o workflow de deploy para colocar a aplicação no ar.
+- No servidor, instalar o **Certbot** e usá-lo para gerar um certificado SSL/TLS gratuito da Let's Encrypt para o seu domínio, configurando o Nginx para forçar o uso de HTTPS.
 
-#### 📌 Domingo (27/07) — **Revisão Técnica Geral**
-- Rodar testes manuais completos:
-    - Criar/editar/excluir experiencias
-    - Curtir, favoritar
-    - Busca e filtros
-- Verificar funcionamento do sistema em ambiente Docker
-- Procurar falhas
+#### 📌 Sábado (27/07) — **Documentação Final e Polimento do Portfólio**
+- **Foco:** Documentação
+- Atualizar o `README.md` de forma massiva: adicionar seções sobre a arquitetura, as decisões técnicas, como rodar o projeto localmente (dev e prod), e documentar as variáveis de ambiente.
+- Adicionar documentação da API usando o Swagger, que pode ser gerado automaticamente pelo NestJS.
+- Gravar um GIF ou vídeo curto demonstrando a aplicação e o fluxo de CI/CD.
 
-#### 📌 Segunda (28/07) — **Resumir tudo que aprendi**
-- Finalmente o projeto está pronto e agora é so olhar para trás e retomar cada etapa e seus desafios
+#### 📌 Domingo (28/07) — **🚀 Lançamento e Retrospectiva Final**
+- Fazer uma revisão completa e final do sistema em produção.
+- Escrever o post final no LinkedIn sobre o desafio de 1 mês, compartilhando o link do projeto no GitHub e o link da aplicação no ar. Detalhe os aprendizados e as tecnologias utilizadas (dar ênfase em JWT, React Query, Testes e CI/CD!).
+- Olhar para trás, revisar todos os seus commits e anotações dos `dias/`, e consolidar seu aprendizado.
+- Comemorar!

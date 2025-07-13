@@ -2,29 +2,32 @@ import Card from '../components/card'
 import SearchBox from '../components/editBox'
 import { useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPublicXp } from '../services/xpService'
-import { getUser } from '../services/userService'
+import { getPublicXp, getXpUser } from '../services/xpService'
+import { getUser, deslogar } from '../services/userService'
 import type { Xp } from '../types/xp'
 import type { Fav } from '../types/fav'
 
-function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?:string, limpaNavMsg?: () => void }){
+function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, limpaNavMsg?: () => void }){
 
-    const [data, setData] = useState<Xp[]>([]);
-    const [fav, setFav] = useState<Fav[]>([]);
-    const [texto, setTexto] = useState("");
-    const [tags, setTag] = useState<string[]>([]);
-    const [enter, setEnter] = useState(false);
+    const [fav, setFav] = useState<Fav[]>([]); // Variável para guardar os favoritos do usuário
+    const [texto, setTexto] = useState(""); // Variável para controlar o campo de texto
+    const [tags, setTag] = useState<string[]>([]); // Variável para guardar as tags
+    const [enter, setEnter] = useState(false); // Variável para detectar se "enter" foi precionado
+    const [filtrados, setFiltrado] = useState<Xp[]>([]);
     const navigate = useNavigate();
 
+    // Pega o id do usuário
     const userStr = localStorage.getItem("usuario");
     const local = (userStr) ? JSON.parse(userStr) : null;
     
+    // Pega as experiências de um usuário ou todas experiências públicas
     useEffect(() => {
         const buscarDados = async () => {
+            // Pega todas experiências de um usuário (chamada pelo '/me')
             if(user){
                 const res = await getUser(local.id);
-                setData(res.xp);
                 setFav(res.favoritos);
+            // Pega todas experiências publicas (chamada pelo '/')
             } else {
                 const xp = await getPublicXp();
                 setData(xp);
@@ -33,9 +36,11 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?:string, l
         buscarDados();
     }, []);
 
+    // Recebe mensagem da barra e navegação para deslogar
     useEffect(() => {
         if(navMsg){
             if(navMsg === "logout"){
+                deslogar(local.id);
                 localStorage.removeItem("usuario");
                 navigate('/entrar');
                 limpaNavMsg()
@@ -43,31 +48,34 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?:string, l
         }
     }, [navMsg])
 
+    // Define uma tag e limpa a caixa de pesquisa
     useEffect(() => {
+        // Detecta se é uma tag, ou apenas uma busca
         if(texto.startsWith('#') && (texto.endsWith(',') || texto.endsWith(' ') || enter)){
             if(enter) setTag(prev => [...prev, texto.toLowerCase()]);
             else setTag(prev => [...prev, texto.toLowerCase().slice(0, -1)]);
             setTexto("");
         }
         setEnter(false);
-    }, [texto, enter])
+        
+        // Função que se chama para filtrar toda vez que muda o texto ou as tags, ou o enter é precionado, se começa com '#' ele espera a tag ser adicionada
+        (async () => {
+            if(texto[0] !== '#'){
+                if(user) setFiltrado(await getXpUser(local.id, texto, tags.toString()))
+                else setFiltrado(await getPublicXp(texto, tags.toString()))
+            }
+        })()
 
-    const filtrados = data.filter(xp =>
-        (texto.trim()[0] === '#' ||
-        xp.texto.toLowerCase().includes(texto.trim().toLowerCase())) &&
-        (tags.length === 0 || 
-        tags.some(tagFiltro => xp.tags.map((t: string) => t.toLowerCase()).includes(tagFiltro)))
-    );
-
-    function handleEnterPress() {
-        setEnter(true);
-    }
+    }, [texto, tags, enter]) // Chama a função caso digite um caractere ou aperte enter
 
     return (
         <>
+            {/* Campo de busca */}
             <div className='flex justify-center'>
-                <SearchBox style='mt-[20px] mx-[40px] ' rotulo='Buscar...' value={texto} onChange={setTexto} onEnter={handleEnterPress} />
+                <SearchBox style='mt-[20px] mx-[40px] ' rotulo='Buscar...' value={texto} onChange={setTexto} onEnter={() => setEnter(true)} />
             </div>
+
+            {/* Mostra as tags aplicadas e dá opção de remover */}
             <div className='flex justify-center w-full'>
                 <div className='flex flex-wrap gap-2 max-w-[1000px] pt-4'>
                     {tags.map((t, index) => (
@@ -77,6 +85,8 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?:string, l
                     ))}
                 </div>
             </div>
+
+            {/* Se tem usuário logado (está na página "/me") */}
             {user && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
@@ -84,17 +94,24 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?:string, l
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                 </div>
             </>}
-            <div className='flex justify-center flex-wrap p-[20px]'>
-                {filtrados.map(xp => (
-                    <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`Usuário ${xp.id_user}`} texto={xp.texto} />
-                ))}
-            </div>
+
+            {/* Mostra os cards com as experiências */}
+            {filtrados && <>
+                <div className='flex justify-center flex-wrap p-[20px]'>
+                    {filtrados.map(xp => (
+                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`${xp.user.usuario}`} texto={xp.texto} />
+                    ))}
+                </div>
+            </>}
+
+            {/* Se tem usuário logado e ele tem favoritos (está na página "/me") */}
             {(user && fav.length) && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                     <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Favoritos</h1>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                 </div>
+                {/* Mostra os cards com dados dos favoritos e passa parametro "fav" para usar no "cardModal" */}
                 <div className='flex justify-center flex-wrap p-[20px]'>
                     {fav.map(xp => (
                         <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`${xp.autor}`} texto={xp.texto} fav={true} />

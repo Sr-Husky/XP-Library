@@ -158,7 +158,7 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
 
 **🗓️ Período: 15/07 (terça) a 21/07 (segunda)** **🎯 Objetivo da semana:** Implementar um sistema de autenticação e autorização completo, modernizar o gerenciamento de estado do frontend com uma biblioteca de ponta (React Query) e iniciar a cultura de testes no projeto.
 
-#### 📌 Segunda (15/07) — **Setup da Autenticação no Backend**
+#### 📌 Terça (15/07) — **Setup da Autenticação no Backend**
 - **Foco:** Backend (NestJS)
 - Instalar dependências de autenticação (`@nestjs/passport`, `@nestjs/jwt`, `passport-jwt`).
 - Criar o `AuthModule`.
@@ -166,38 +166,38 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
 - Criar a rota `POST /login` no `AuthController`.
 - Criar um `JwtAuthGuard` para proteger rotas.
 
-#### 📌 Terça (16/07) — **Integração da Autenticação no Frontend**
+#### 📌 Quarta (16/07) — **Integração da Autenticação no Frontend**
 - **Foco:** Frontend (React)
 - Conectar a página `/entrar` para chamar os endpoints reais da API.
 - Criar um Contexto de Autenticação (`AuthContext`) ou um hook para gerenciar o estado do usuário e os tokens (salvando no `localStorage`).
 - Implementar rotas protegidas com React Router DOM, que redirecionam para `/login` caso o usuário não esteja autenticado.
 
-#### 📌 Quarta (17/07) — **Autorização por Roles e Refino no Backend**
+#### 📌 Quinta (17/07) — **Autorização por Roles e Refino no Backend**
 - **Foco:** Backend (NestJS)
 - Adicionar um campo `role` (`'USER'` ou `'ADMIN'`) ao `schema.prisma` do `Usuario`.
 - Criar um `RolesGuard` que verifica os cargos permitidos para uma rota.
 - Proteger rotas críticas, como `DELETE /experiencias/:id`, permitindo o acesso apenas ao dono da experiência ou a um admin.
 - Implementar o fluxo de "Refresh Token" para manter o usuário logado de forma segura.
 
-#### 📌 Quinta (18/07) — **Introdução ao React Query e Refatoração da Home**
+#### 📌 Sexta (18/07) — **Introdução ao React Query e Refatoração da Home**
 - **Foco:** Frontend (React)
 - Instalar `TanStack Query (React Query)`.
 - Configurar o `QueryClientProvider` na raiz da aplicação.
 - Refatorar a busca de dados da página inicial (`/`), trocando os `useEffect`s e `useState`s por um único hook `useQuery`.
 - Implementar estados de `isLoading` (ex: exibir um spinner) e `isError` (exibir mensagem de erro) de forma declarativa.
 
-#### 📌 Sexta (19/07) — **Refatoração Completa com React Query (Mutations)**
+#### 📌 Sábado (19/07) — **Refatoração Completa com React Query (Mutations)**
 - **Foco:** Frontend (React)
 - Refatorar todas as ações que modificam dados (criar, editar, deletar, curtir, favoritar) para usar o hook `useMutation`.
 - Implementar invalidação de queries (`queryClient.invalidateQueries`) após uma `mutation` de sucesso para que a UI seja atualizada automaticamente com os novos dados do servidor.
 - **Desafio opcional:** Implementar uma "Atualização Otimista" (Optimistic Update) na ação de curtir para que a UI responda instantaneamente.
 
-#### 📌 Sábado (20/07) — **Escrevendo os Primeiros Testes (Backend)**
+#### 📌 Domingo (20/07) — **Escrevendo os Primeiros Testes (Backend)**
 - **Foco:** Backend (NestJS)
 - Escrever testes unitários para as regras de negócio de um dos seus `services` (ex: `AuthService`).
 - Escrever um teste de integração (E2E) para um `controller`, usando Supertest para simular requisições HTTP e validar as respostas da API, como o status code e o corpo da resposta.
 
-#### 📌 Domingo (21/07) — **🧪 Revisão da Semana e Testes no Frontend**
+#### 📌 Segunda (21/07) — **🧪 Revisão da Semana e Testes no Frontend**
 - Revisar todo o fluxo de autenticação e o uso do React Query.
 - Escrever testes para componentes React com **Vitest** e **React Testing Library**.
 - Começar testando um componente simples (ex: `Button`) e depois um que consuma um hook (ex: um `CardExperiencia` que use dados mockados).
@@ -209,13 +209,13 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
 
 **🗓️ Período: 22/07 (terça) a 28/07 (segunda)** **🎯 Objetivo da semana:** Automatizar o processo de teste e deploy com CI/CD, configurar um ambiente de produção robusto e profissional com Nginx e HTTPS, e finalizar a documentação do projeto para transformá-lo em um portfólio de alto impacto.
 
-#### 📌 Segunda (22/07) — **Preparação para Produção e Docker Compose Final**
+#### 📌 Terça (22/07) — **Preparação para Produção e Docker Compose Final**
 - **Foco:** Docker
 - Criar os builds de produção do front (`npm run build` no React) e do back (`npm run build` no Nest).
 - Criar um `Dockerfile` multi-stage para cada serviço (front e back) para gerar imagens otimizadas e menores.
 - Criar um arquivo `docker-compose.prod.yml` que orquestra os serviços de produção: Nginx, NestJS (rodando o build de `/dist`), e PostgreSQL (com volume persistente).
 
-#### 📌 Terça (23/07) — **Configuração do Nginx como Reverse Proxy**
+#### 📌 Quarta (23/07) — **Configuração do Nginx como Reverse Proxy**
 - **Foco:** Nginx e Docker
 - Escrever o arquivo de configuração `nginx.conf`.
 - Configurar o Nginx para:
@@ -223,7 +223,7 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
     2. Atuar como um reverse proxy, redirecionando todas as chamadas para `/api/*` para o container do NestJS.
 - Testar toda a aplicação rodando localmente com `docker-compose -f docker-compose.prod.yml up`.
 
-#### 📌 Quarta (24/07) — **CI/CD Parte 1: Automação de Testes (GitHub Actions)**
+#### 📌 Quinta (24/07) — **CI/CD Parte 1: Automação de Testes (GitHub Actions)**
 - **Foco:** GitHub Actions
 - Criar a pasta `.github/workflows` no seu repositório.
 - Criar um workflow em YAML (`test.yml`) que é acionado a cada `push` ou `pull_request`.
@@ -233,7 +233,7 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
     - Rodar os testes (`npm test`) de ambos os projetos.
     - Exibir um status de sucesso ou falha no GitHub.
 
-#### 📌 Quinta (25/07) — **CI/CD Parte 2: Automação do Deploy (GitHub Actions)**
+#### 📌 Sexta (25/07) — **CI/CD Parte 2: Automação do Deploy (GitHub Actions)**
 - **Foco:** GitHub Actions e DevOps
 - Criar um segundo workflow (`deploy.yml`) que é acionado apenas em `push` para a branch `main`.
 - O workflow deve:
@@ -241,19 +241,19 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
     - Fazer login em um registro de containers (Docker Hub ou GitHub Container Registry).
     - Enviar (push) as imagens para o registro.
 
-#### 📌 Sexta (26/07) — **Deploy Real em Servidor com HTTPS**
+#### 📌 Sábado (26/07) — **Deploy Real em Servidor com HTTPS**
 - **Foco:** Infraestrutura e Segurança
 - (Assumindo que vou ter um domínio e um servidor/VPS) Apontar seu domínio para o IP do servidor.
 - Executar o workflow de deploy para colocar a aplicação no ar.
 - No servidor, instalar o **Certbot** e usá-lo para gerar um certificado SSL/TLS gratuito da Let's Encrypt para o seu domínio, configurando o Nginx para forçar o uso de HTTPS.
 
-#### 📌 Sábado (27/07) — **Documentação Final e Polimento do Portfólio**
+#### 📌 Domingo (27/07) — **Documentação Final e Polimento do Portfólio**
 - **Foco:** Documentação
 - Atualizar o `README.md` de forma massiva: adicionar seções sobre a arquitetura, as decisões técnicas, como rodar o projeto localmente (dev e prod), e documentar as variáveis de ambiente.
 - Adicionar documentação da API usando o Swagger, que pode ser gerado automaticamente pelo NestJS.
 - Gravar um GIF ou vídeo curto demonstrando a aplicação e o fluxo de CI/CD.
 
-#### 📌 Domingo (28/07) — **🚀 Lançamento e Retrospectiva Final**
+#### 📌 Segunda (28/07) — **🚀 Lançamento e Retrospectiva Final**
 - Fazer uma revisão completa e final do sistema em produção.
 - Escrever o post final no LinkedIn sobre o desafio de 1 mês, compartilhando o link do projeto no GitHub e o link da aplicação no ar. Detalhe os aprendizados e as tecnologias utilizadas (dar ênfase em JWT, React Query, Testes e CI/CD!).
 - Olhar para trás, revisar todos os seus commits e anotações dos `dias/`, e consolidar seu aprendizado.

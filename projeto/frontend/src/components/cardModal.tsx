@@ -15,10 +15,10 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
     const [cardObj, setCardObj] = useState<Xp>(); // Objeto da experiência mostrado no modal
     const [favObj, setFavObj] = useState<Fav>(); // Objeto da experiência mostrado no modal caso seja um objeto do tipo "Fav"
     const [user, setUser] = useState<User>(); // Usuário autor do card
-    const [conf1, setConf1] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da edição
-    const [conf2, setConf2] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da deleção
-    const [conf3, setConf3] = useState<boolean>(false); // Mostra/Esconde modal de confirmação do descarte das alterações
-    const [conf4, setConf4] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da publicação
+    const [editConf, setEditConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da edição
+    const [delConf, setDelConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da deleção
+    const [cancelConf, setCancelConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação do descarte das alterações
+    const [pubConf, setPubConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da publicação
     const [editMode, setEditMode] = useState<boolean>(false) // Abre o modal no modo de edição
     const [tagEdit, setTagEdit] = useState<string[]>([]) // Variável que controla o campo "tags" do controle de edição
     const [textoEdit, setTextoEdit] = useState<string>("") // Variável que controla o campo "texto" do controle de edição
@@ -192,19 +192,19 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                     {/* Se está na página "/me", já carregou a experiencia e a experiencia é do usuário logado */}
                     {location.pathname === "/me" && cardObj && cardObj.id_user === local.id && <>
                         {/* Botão de editar */}
-                        <button onClick={() => setConf1(true)} className="absolute text-yellow-400 font-bold p-[6px] top-[20px] right-[60px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
-                        {conf1 && <Confirmar titulo="Tem certeza que deseja editar?" texto="Essa é uma experiencia pública, ao edita-la voce perderá a contagem de likes" func={() => setEditMode(true)} close={() => setConf1(false)} />}
+                        <button onClick={() => setEditConf(true)} className="absolute text-yellow-400 font-bold p-[6px] top-[20px] right-[60px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
+                        {editConf && <Confirmar titulo="Tem certeza que deseja editar?" texto="Essa é uma experiencia pública, ao edita-la voce perderá a contagem de likes" func={() => setEditMode(true)} close={() => setEditConf(false)} />}
                         {/* Botão de excluir */}
-                        <button onClick={() => setConf2(true)} className="absolute text-red-400 font-bold p-[6px] top-[20px] right-[105px] bg-gray-600 rounded-full"><TrashIcon className="w-5 h-5" /></button>
-                        {conf2 && <Confirmar titulo="Tem certeza que deseja excluir?" texto="Voce está preste a deletar essa experiência para sempre, essa ação não poderá ser desfeita" func={() => excluir()} close={() => setConf2(false)} />}
+                        <button onClick={() => setDelConf(true)} className="absolute text-red-400 font-bold p-[6px] top-[20px] right-[105px] bg-gray-600 rounded-full"><TrashIcon className="w-5 h-5" /></button>
+                        {delConf && <Confirmar titulo="Tem certeza que deseja excluir?" texto="Voce está preste a deletar essa experiência para sempre, essa ação não poderá ser desfeita" func={() => excluir()} close={() => setDelConf(false)} />}
                         {/* Botão de público/privado */}
                         {cardObj.pub ? <>
                             {/* Público (tornar privado) */}
                             <button onClick={() => editar(false)} className="absolute text-green-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><GlobeAltIcon className="w-5 h-5" /></button>
                         </> : <>
                             {/* Privado (tornar público) */}
-                            <button onClick={() => setConf4(true)} className="absolute text-blue-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><LockClosedIcon className="w-5 h-5" /></button>
-                            {conf4 && <Confirmar titulo="Tem certeza que deseja tornar público" texto="Ao tornar essa experiência pública, ela ficará disponível para qualquer pessoa, podendo ser salva por outros usuários" func={() => editar(true)} close={() => setConf4(false)} />}
+                            <button onClick={() => setPubConf(true)} className="absolute text-blue-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><LockClosedIcon className="w-5 h-5" /></button>
+                            {pubConf && <Confirmar titulo="Tem certeza que deseja tornar público" texto="Ao tornar essa experiência pública, ela ficará disponível para qualquer pessoa, podendo ser salva por outros usuários" func={() => editar(true)} close={() => setPubConf(false)} />}
                         </>}
                     </>}
 
@@ -235,8 +235,8 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                     {/* Botão de confirmar edição */}
                     <button onClick={() => {editar(); onClose()}} className="absolute text-white font-bold p-[6px] top-[20px] right-[16px] bg-gray-600 rounded-full"><CheckIcon className="w-6 h-6 text-green-600" /></button>
                     {/* Botão de fechar (descartar edição) */}
-                    <button onClick={() => setConf3(true)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><XMarkIcon  className="w-7 h-7 text-red-400" /></button>
-                    {conf3 && <Confirmar titulo="Cancelar alterações?" texto="Todas as alterações feitas serão descartadas, essa ação não poderá ser desfeita" func={onClose} close={() => setConf3(false)} />}
+                    <button onClick={() => setCancelConf(true)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><XMarkIcon  className="w-7 h-7 text-red-400" /></button>
+                    {cancelConf && <Confirmar titulo="Cancelar alterações?" texto="Todas as alterações feitas serão descartadas, essa ação não poderá ser desfeita" func={onClose} close={() => setCancelConf(false)} />}
                     
                     {/* Quando já tiver carregado o card */}
                     {cardObj ? (

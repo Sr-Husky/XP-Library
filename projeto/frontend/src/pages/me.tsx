@@ -11,19 +11,16 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
     const [modal, setModal] = useState<boolean>(false); // Controle para cardModal
     const [user, setUser] = useState<User>(); // Guarda um objeto com os dados do usuário logado
 
-    // Pega o id do usuário
-    const userStr = localStorage.getItem("usuario");
-    const local = (userStr) ? JSON.parse(userStr) : null;
+    const token = localStorage.getItem("token");
 
     // Recebe mensagem da navBar
     useEffect(() => {
         if(navMsg){
             // Mensagem para deslogar
             if(navMsg === "logout"){
-                deslogar(local.id);
-                localStorage.removeItem("usuario");
-                navigate('/entrar');
+                deslogar();
                 limpaNavMsg()
+                navigate('/entrar');
             }
 
             // mensagem para criar nova experiencia
@@ -36,11 +33,11 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
 
     // Verifia se o usuário está logado, se nao estiver volta para pagina "/entrar"
     useEffect(() => {
-        if(!local) navigate('/entrar');
+        if(!token) navigate('/entrar');
         const validar = async () => {
-            const res = await getUser(local.id);
+            const res = await getUser();
             if(!res.logado){
-                localStorage.removeItem("usuario");
+                localStorage.removeItem("token");
                 navigate('/entrar');
             }
             setUser(res);

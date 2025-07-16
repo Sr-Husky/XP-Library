@@ -11,8 +11,7 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight }); // Coleta o tamanho atual da tela
 
     // Id do usuário logado
-    const userStr = localStorage.getItem("usuario");
-    let local = (userStr) ? JSON.parse(userStr) : null;
+    let token = localStorage.getItem("token");
 
     // Atualiza as variáveis do tamanho da tela em caso de redimensionamento
     useEffect(() => {
@@ -26,10 +25,13 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
 
     // Vê se o usuário está logado através do banco de dados
     useEffect(() => {
-        if(local){
+        if(token){
             const validar = async () => {
-                const res = await getUser(local.id);
-                if(!res.logado) local = false;
+                const res = await getUser();
+                if(!res.logado){
+                    localStorage.removeItem("token");
+                    token = null;
+                }
             }
             validar();
         }
@@ -42,7 +44,7 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
             {size.width >= 1200 ? <>
 
                 {/* Se tem usuário logado */}
-                {local ? <>
+                {token ? <>
                     {/* Botão "Home" */}
                     <Botao texto='Home' onClick={() => navigate('/')} style='absolute left-[1vw] rounded-[10px] border-[0px] bg-[rgb(80,80,80)] hover:bg-[rgb(50,50,50)] top-1/2 -translate-y-1/2 text-white w-[100px] h-[33px] hover:font-normal' styleTexto=' lg:text-[2vw] xl:text-[1.5vw] 2xl:text-[1vw]' />
                     {/* Botão "Perfil" */}
@@ -71,7 +73,7 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
             </> : <>
 
                 {/* Se tem usuário logado */}
-                {local ? <>
+                {token ? <>
                     {/* Botão "Home" pequeno */}
                     <button onClick={() => navigate('/')} className="absolute left-[16px] rounded-[10px] bg-[rgb(80,80,80)] hover:bg-[rgb(50,50,50)] top-1/2 -translate-y-1/2 text-white w-[50px] h-[50px]"><HomeIcon  className="w-full h-7" /></button>
                     {/* Botão "Perfil" pequeno */}

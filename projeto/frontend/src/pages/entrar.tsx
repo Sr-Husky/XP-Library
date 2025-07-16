@@ -19,16 +19,11 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight }); // Variáveis para quardar tamanho da tela
     const navigate = useNavigate();
 
-    // Pega o id do usuário
-    const userStr = localStorage.getItem("usuario");
-    const local = (userStr) ? JSON.parse(userStr) : null;
-
     // Recebe mensagem da navBar para fazer logout
     useEffect(() => {
         if(navMsg){
             if(navMsg === "logout"){
-                deslogar(local.id);
-                localStorage.removeItem("usuario");
+                deslogar();
                 limpaNavMsg()
             }
         }
@@ -71,15 +66,15 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     // Tenta fazer login
     const login = async () => {
         if(!validaEmail()) {setEmailRed(true); return setMsg("Digite um email válido");} // Testa a sintaxe do email
-        const user = await userLogin(email, senha); // Coleta dados da API
-        if(user === 404) {setEmailRed(true); return setMsg("Usuário não registrado");} // Erro caso o email não seja encontrado no banco de dados
-        if(user === 401) {setSenhaRed(true); return setMsg("Senha incorreta");} // Erro caso a senha não seja a mesma atribuida ao email
-        if(!user) return setMsg("Erro desconhecido, tente novamente");  // Qual outro erro (rede, etc)
-        localStorage.setItem("usuario", JSON.stringify({ id: user.id })); // Coloca o id do usuário logado no localStorage
+        const res = await userLogin(email, senha); // Coleta dados da API
+        if(res === 404) {setEmailRed(true); return setMsg("Usuário não registrado");} // Erro caso o email não seja encontrado no banco de dados
+        if(res === 401) {setSenhaRed(true); return setMsg("Senha incorreta");} // Erro caso a senha não seja a mesma atribuida ao email
+        if(!res) return setMsg("Erro desconhecido, tente novamente");  // Qual outro erro (rede, etc)
+        localStorage.setItem("token", res.access_token); // Coloca o token no localStorage
         navigate('/me');
     }
 
-    // Não vou comentar porque ainda vou trocar
+    // Faz o cadastro
     const cadastro = async () => {
         if(!usuario) {setUsuarioRed(true); return setMsg("Digite seu nome de usuário");} // Verifica se o usuário foi digitado
         if(!validaEmail()) {setEmailRed(true); return setMsg("Digite um email válido");} // Testa a sintaxe do email

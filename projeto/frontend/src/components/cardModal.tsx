@@ -26,14 +26,12 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
     const [tagText, setTagText] = useState<string>('') // Variável que controla o campo de input de tags
     const location = useLocation();
     const ref = [useRef<HTMLTextAreaElement>(null), useRef<HTMLTextAreaElement>(null)]; // 2 useRef para pegar referencia de 2 textAreas diferentes
-    const userStr = localStorage.getItem("usuario");
-    const local = (userStr) ? JSON.parse(userStr) : null; // Pega o id do usuário no localStorge ou define usuário "null"
 
     // Busca os dados do usuário autor e da experiencia na API
     useEffect(() => {
         // Pega os dados do usuário
         const buscarUser = async () => {
-            const res = await getUser(local.id);
+            const res = await getUser();
             setUser(res);
             // Se for experiencia vinda de favoritos, busca a experiencia por id da tabela de favoritos ao invés da tabela "xp"
             if(fav) setFavObj(res.favoritos.find(e => e.id === id));
@@ -95,7 +93,6 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
         // Caso nenhuma experiencia seja passada para o modal, criar uma
         if(!id){
             const novo: Xp = {
-                id_user: user.id,
                 texto: textoEdit,
                 contexto: contextoEdit,
                 tags: tagEdit,
@@ -114,10 +111,10 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
         } else {
             const atualizar = async () => {
                 return await atualizaXp({
-                    id: id, 
-                    texto: textoEdit, 
-                    contexto: contextoEdit, 
-                    tags: tagEdit, 
+                    id: id,
+                    texto: textoEdit,
+                    contexto: contextoEdit,
+                    tags: tagEdit,
                     pub: ((pub === undefined) ? cardObj.pub : pub), // Caso seja passado o parametro, é apenas uma mudança de visibilidade, atualizar a visibilidade
                     likes: ((pub === undefined) ? 0 : cardObj.likes) // Caso seja passado o parametro, é apenas uma mudança de visibilidade, não zerar os likes
                 });
@@ -164,23 +161,23 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                     <button onClick={onClose} className="absolute text-white font-bold p-[3px] top-[20px] right-[16px] bg-gray-600 rounded-full"><XMarkIcon  className="w-7 h-7" /></button>
 
                     {/* Se tem usuário logado, já carregou a experiencia e a experiencia não é do usuário logado */}
-                    { local && cardObj && !(cardObj.id_user === local.id) && <>
+                    { user && cardObj && !(cardObj.id_user === user.id) && <>
 
                         {/* Se está no "/me" mostra apenas botão desfavoritar, senão, mostra botão de fav/desfav e like/deslike */}
                         {location.pathname === '/me' ? <>
                             {/* Botão desfavoritar */}
-                            <button onClick={() => desfavoritar(isFav().id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                            <button onClick={() => desfavoritar(isFav())} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
                         </> : <> 
                             {user && <>
                                 {/* Botão like/deslike */}
                                 {(user.like.find(e => e === id)) ?
-                                    <button onClick={() => deslike(user.id, cardObj.id, user.like.filter(e => e !== cardObj.id))} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIconSolid  className="w-7 h-7" /></button>
+                                    <button onClick={() => deslike(cardObj.id, user.like.filter(e => e !== cardObj.id))} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIconSolid  className="w-7 h-7" /></button>
                                     :
-                                    <button onClick={() => like(user.id, cardObj.id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIcon  className="w-7 h-7" /></button>
+                                    <button onClick={() => like(cardObj.id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIcon  className="w-7 h-7" /></button>
                                 }
                                 {/* Botão fav/desfav */}
                                 {(isFav()) ?
-                                    <button onClick={() => desfavoritar(isFav().id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                                    <button onClick={() => desfavoritar(isFav())} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
                                     :
                                     <button onClick={() => addFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIcon  className="w-7 h-7" /></button>
                                 }
@@ -190,7 +187,7 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                     </>}
 
                     {/* Se está na página "/me", já carregou a experiencia e a experiencia é do usuário logado */}
-                    {location.pathname === "/me" && cardObj && cardObj.id_user === local.id && <>
+                    {location.pathname === "/me" && cardObj && user && cardObj.id_user === user.id && <>
                         {/* Botão de editar */}
                         <button onClick={() => setEditConf(true)} className="absolute text-yellow-400 font-bold p-[6px] top-[20px] right-[60px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
                         {editConf && <Confirmar titulo="Tem certeza que deseja editar?" texto="Essa é uma experiencia pública, ao edita-la voce perderá a contagem de likes" func={() => setEditMode(true)} close={() => setEditConf(false)} />}

@@ -17,20 +17,14 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, 
     const navigate = useNavigate();
 
     // Pega o id do usuário
-    const userStr = localStorage.getItem("usuario");
-    const local = (userStr) ? JSON.parse(userStr) : null;
+    const token = localStorage.getItem("token");
     
-    // Pega as experiências de um usuário ou todas experiências públicas
+    // Pega todas experiências favoritas de um usuário (chamada pelo '/me')
     useEffect(() => {
         const buscarDados = async () => {
-            // Pega todas experiências de um usuário (chamada pelo '/me')
             if(user){
-                const res = await getUser(local.id);
+                const res = await getUser();
                 setFav(res.favoritos);
-            // Pega todas experiências publicas (chamada pelo '/')
-            } else {
-                const xp = await getPublicXp();
-                setData(xp);
             }
         };
         buscarDados();
@@ -40,10 +34,9 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, 
     useEffect(() => {
         if(navMsg){
             if(navMsg === "logout"){
-                deslogar(local.id);
-                localStorage.removeItem("usuario");
-                navigate('/entrar');
+                deslogar();
                 limpaNavMsg()
+                navigate('/entrar');
             }
         }
     }, [navMsg])
@@ -61,7 +54,7 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, 
         // Função que se chama para filtrar toda vez que muda o texto ou as tags, ou o enter é precionado, se começa com '#' ele espera a tag ser adicionada
         (async () => {
             if(texto[0] !== '#'){
-                if(user) setFiltrado(await getXpUser(local.id, texto, tags.toString()))
+                if(user) setFiltrado(await getXpUser(texto, tags.toString()))
                 else setFiltrado(await getPublicXp(texto, tags.toString()))
             }
         })()

@@ -3,15 +3,20 @@ import type { User } from '../types/user';
 import { isAxiosError } from 'axios';
 
 // Chama serviço para coletar usuário pelo id
-export const getUser = async (id: number): Promise<User> => {
-  const resposta = await api.get(`/user/${id}`);
-  return resposta.data;
+export const getUser = async (): Promise<User> => {
+  const token = localStorage.getItem('token');
+  const res = await api.get('/user/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
 };
 
 // Chama serviço para logar 
 export const userLogin = async (email: string, senha: string) => {
   try{
-    const res = await api.post('/user/login', {email,senha});
+    const res = await api.post('/auth/login', {email,senha});
     return res.data; // Retorna o objeto do usuário
   } catch(err){
     if(isAxiosError(err)) return err.response?.status; // Retorna o número do erro
@@ -20,8 +25,14 @@ export const userLogin = async (email: string, senha: string) => {
 }
 
 // Chama serviço para deslogar
-export const deslogar = async (id: number) => {
-  return api.post(`/user/logout/${id}`);
+export const deslogar = async () => {
+  const token = localStorage.getItem('token');
+  localStorage.removeItem('token');
+  return api.post(`/user/logout`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 }
 
 // Chama serviço para cadastrar usuário

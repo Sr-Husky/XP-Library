@@ -1,31 +1,11 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CriarUserDto } from './dto/criarUser.dto';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UserService {
     constructor(private readonly prisma: PrismaService){}
-
-    // Valida o login do usuário retornar erros ou objeto do user
-    async login(email: string, senha: string){
-        // Coleta o usuário pelo email
-        const user = await this.prisma.user.findUnique({
-            where: { email: email },
-        });
-
-        // Se email não estiver registrado
-        if(!user) throw new NotFoundException('Usuario não encontrado');
-
-        // Se o usuário estiver registrado mas a senha estiver incorreta
-        if(senha !== user.senha) throw new UnauthorizedException('Senha incorreta');
-
-        await this.prisma.user.update({
-            where: {email: email},
-            data: {logado: true}
-        })
-        
-        return user; // retorno bem sucedido
-    }
 
     // Deloga o usuário
     async logout(id: number){
@@ -62,8 +42,15 @@ export class UserService {
         // Se email já estiver registrado
         if(user) throw new ConflictException('Usuário já existe');
 
-        // Registra o usuário
-        return await this.prisma.user.create({data: dto});
+        const hashedSenha = await bcrypt.hash(dto.senha, 10);
+
+        const novoUsuario = await this.prisma.user.create({
+            data: {
+                ...dto,
+                senha: hashedSenha,
+            },
+        });
+
     }
 
 }

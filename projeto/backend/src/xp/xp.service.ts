@@ -7,12 +7,24 @@ export class XpService {
   constructor(private readonly prisma: PrismaService){}
 
   // Busca o id de uma experiência e retorna um objeto dela
-  async getXp(id: number){
-    return this.prisma.xp.findUnique({
-      where: {id: id},
-      include: {user: true} // Inclui um objeto com o user do autor
-    })
+  async getXp(id: number, userId?: number) {
+    const xp = await this.prisma.xp.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+
+    if(!xp) return null;
+
+    if(!xp.pub) {
+      if(!userId || xp.id_user !== userId) {
+        // Não logado ou não é o dono
+        return null; // ou: throw new ForbiddenException();
+      }
+    }
+
+    return xp;
   }
+
 
   // Lista todas as experiências filtradas por busca ou tags (se tiver)
   async listarPublicas(busca?: string, tags?: string[]){

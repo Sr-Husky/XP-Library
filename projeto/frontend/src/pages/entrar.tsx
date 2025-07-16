@@ -3,6 +3,7 @@ import Card from '../components/card'
 import EditBox from '../components/editBox'
 import Botao from '../components/botao'
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../contexts/AuthContext';
 import { userLogin, userCad, deslogar } from "../services/userService"
 
 function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => void} ){
@@ -17,6 +18,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     const [senhaRed, setSenhaRed] = useState<boolean>(false); // Variável que deixa o campo "senha" vermelho em caso de erro
     const [msg, setMsg] = useState<string>('') // Variável que mostra a mensagem do erro
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight }); // Variáveis para quardar tamanho da tela
+    const { contextLogin, contextLogout } = useAuth();
     const navigate = useNavigate();
 
     // Recebe mensagem da navBar para fazer logout
@@ -24,6 +26,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
         if(navMsg){
             if(navMsg === "logout"){
                 deslogar();
+                contextLogout();
                 limpaNavMsg()
             }
         }
@@ -70,7 +73,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
         if(res === 404) {setEmailRed(true); return setMsg("Usuário não registrado");} // Erro caso o email não seja encontrado no banco de dados
         if(res === 401) {setSenhaRed(true); return setMsg("Senha incorreta");} // Erro caso a senha não seja a mesma atribuida ao email
         if(!res) return setMsg("Erro desconhecido, tente novamente");  // Qual outro erro (rede, etc)
-        localStorage.setItem("token", res.access_token); // Coloca o token no localStorage
+        contextLogin(res.user, res.access_token);
         navigate('/me');
     }
 

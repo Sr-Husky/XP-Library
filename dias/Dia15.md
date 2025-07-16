@@ -1,4 +1,4 @@
-# Dia 15 –  
+# Dia 15 –  **Setup da Autenticação no Backend**
 
 **Data:** 15/07/2025
 

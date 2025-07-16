@@ -27,7 +27,7 @@ model Xp {
   contexto  String
   tags      String[]
   data      DateTime  @default(now())
-  mod       DateTime  @updatedAt
+  mod       DateTime  @default(now())
   pub       Boolean
   likes     Int
 }

@@ -27,8 +27,7 @@ export const userLogin = async (email: string, senha: string) => {
 // Chama serviço para deslogar
 export const deslogar = async () => {
   const token = localStorage.getItem('token');
-  localStorage.removeItem('token');
-  return api.post(`/user/logout`, {
+  return api.post(`/user/logout`, null, {
     headers: {
       Authorization: `Bearer ${token}`
     }

@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUser, deslogar } from '../services/userService'
 import type { User } from '../types/user'
+import { useAuth } from '../contexts/AuthContext'
 
 function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }){
 
     const navigate = useNavigate();
     const [modal, setModal] = useState<boolean>(false); // Controle para cardModal
     const [user, setUser] = useState<User>(); // Guarda um objeto com os dados do usuário logado
+    const { contextLogout } = useAuth();
 
     const token = localStorage.getItem("token");
 
@@ -19,6 +21,7 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
             // Mensagem para deslogar
             if(navMsg === "logout"){
                 deslogar();
+                contextLogout();
                 limpaNavMsg()
                 navigate('/entrar');
             }
@@ -47,7 +50,7 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
 
     return (
         <>
-            {user && <Home user={true} /> /* Página para mostrar experiências do usuário */}
+            {user && <Home userOn={true} /> /* Página para mostrar experiências do usuário */}
             {modal && <CardModal id={0} onClose={() => setModal(false)} /* Modal pra criar nova experiência */ />}
         </>
     )

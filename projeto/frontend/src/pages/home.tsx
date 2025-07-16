@@ -3,31 +3,24 @@ import SearchBox from '../components/editBox'
 import { useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getPublicXp, getXpUser } from '../services/xpService'
-import { getUser, deslogar } from '../services/userService'
+import { deslogar } from '../services/userService'
+import { useAuth } from '../contexts/AuthContext'
 import type { Xp } from '../types/xp'
 import type { Fav } from '../types/fav'
 
-function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, limpaNavMsg?: () => void }){
+function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: string, limpaNavMsg?: () => void }){
 
     const [fav, setFav] = useState<Fav[]>([]); // Variável para guardar os favoritos do usuário
     const [texto, setTexto] = useState(""); // Variável para controlar o campo de texto
     const [tags, setTag] = useState<string[]>([]); // Variável para guardar as tags
     const [enter, setEnter] = useState(false); // Variável para detectar se "enter" foi precionado
     const [filtrados, setFiltrado] = useState<Xp[]>([]);
+    const { user, contextLogout } = useAuth();
     const navigate = useNavigate();
-
-    // Pega o id do usuário
-    const token = localStorage.getItem("token");
     
     // Pega todas experiências favoritas de um usuário (chamada pelo '/me')
     useEffect(() => {
-        const buscarDados = async () => {
-            if(user){
-                const res = await getUser();
-                setFav(res.favoritos);
-            }
-        };
-        buscarDados();
+        if(userOn) setFav(user.favoritos);
     }, []);
 
     // Recebe mensagem da barra e navegação para deslogar
@@ -35,6 +28,7 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, 
         if(navMsg){
             if(navMsg === "logout"){
                 deslogar();
+                contextLogout();
                 limpaNavMsg()
                 navigate('/entrar');
             }
@@ -54,7 +48,7 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, 
         // Função que se chama para filtrar toda vez que muda o texto ou as tags, ou o enter é precionado, se começa com '#' ele espera a tag ser adicionada
         (async () => {
             if(texto[0] !== '#'){
-                if(user) setFiltrado(await getXpUser(texto, tags.toString()))
+                if(userOn) setFiltrado(await getXpUser(texto, tags.toString()))
                 else setFiltrado(await getPublicXp(texto, tags.toString()))
             }
         })()
@@ -80,7 +74,7 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, 
             </div>
 
             {/* Se tem usuário logado (está na página "/me") */}
-            {user && <>
+            {userOn && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                     <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Minhas experiências</h1>
@@ -98,7 +92,7 @@ function Home({ user, navMsg, limpaNavMsg }: { user?: boolean, navMsg?: string, 
             </>}
 
             {/* Se tem usuário logado e ele tem favoritos (está na página "/me") */}
-            {(user && fav.length) && <>
+            {(userOn && fav.length) && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                     <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Favoritos</h1>

@@ -161,7 +161,7 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                     <button onClick={onClose} className="absolute text-white font-bold p-[3px] top-[20px] right-[16px] bg-gray-600 rounded-full"><XMarkIcon  className="w-7 h-7" /></button>
 
                     {/* Se tem usuário logado, já carregou a experiencia e a experiencia não é do usuário logado */}
-                    { user && cardObj && !(cardObj.id_user === user.id) && <>
+                    { user && ((cardObj && !(cardObj.id_user === user.id)) || (fav)) && <>
 
                         {/* Se está no "/me" mostra apenas botão desfavoritar, senão, mostra botão de fav/desfav e like/deslike */}
                         {location.pathname === '/me' ? <>
@@ -187,7 +187,7 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                     </>}
 
                     {/* Se está na página "/me", já carregou a experiencia e a experiencia é do usuário logado */}
-                    {location.pathname === "/me" && cardObj && user && cardObj.id_user === user.id && <>
+                    {location.pathname === "/me" && !fav && cardObj && user && cardObj.id_user === user.id && <>
                         {/* Botão de editar */}
                         <button onClick={() => setEditConf(true)} className="absolute text-yellow-400 font-bold p-[6px] top-[20px] right-[60px] bg-gray-600 rounded-full"><PencilIcon className="w-5 h-5" /></button>
                         {editConf && <Confirmar titulo="Tem certeza que deseja editar?" texto="Essa é uma experiencia pública, ao edita-la voce perderá a contagem de likes" func={() => setEditMode(true)} close={() => setEditConf(false)} />}

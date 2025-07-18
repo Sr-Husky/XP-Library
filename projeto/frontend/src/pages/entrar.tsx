@@ -73,7 +73,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
         if(res === 404) {setEmailRed(true); return setMsg("Usuário não registrado");} // Erro caso o email não seja encontrado no banco de dados
         if(res === 401) {setSenhaRed(true); return setMsg("Senha incorreta");} // Erro caso a senha não seja a mesma atribuida ao email
         if(!res) return setMsg("Erro desconhecido, tente novamente");  // Qual outro erro (rede, etc)
-        contextLogin(res.user, res.access_token);
+        contextLogin(res.user, res.access_token, res.refresh_token);
         navigate('/me');
     }
 
@@ -135,7 +135,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
                         <EditBox onFocus={() => resetStyle()} rotulo='Digite seu nome de usuário' value={usuario} onChange={setUsuario} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${usuarioRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${usuarioRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
                         <EditBox onFocus={() => resetStyle()} rotulo='Digite seu email' value={email} onChange={setEmail} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${emailRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${emailRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
                         <EditBox onFocus={() => resetStyle()} rotulo='Digite sua senha' value={senha} onChange={setSenha} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${senhaRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${senhaRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
-                        <Botao texto='Entrar' onClick={cadastro} style='w-[16vw] h-[8vw] md:w-[10vw] md:h-[4vw]' styleTexto='text-[2vw] md:text-[1vw]' />
+                        <Botao texto='Cadastrar' onClick={cadastro} style='w-[16vw] h-[8vw] md:w-[10vw] md:h-[4vw]' styleTexto='text-[2vw] md:text-[1vw]' />
                         {msg && <p className={`text-[1.5vw] md:text-[0.8vw] text-white rounded-full px-[1vw] p-[0.3vw] mb-[-3vw] mt-[0.7vw] bg-green-600 ${(usuarioRed || emailRed || senhaRed) && "bg-red-600"}`}>{msg}</p>}
                     </div>
                 </div>

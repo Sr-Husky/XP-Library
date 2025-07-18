@@ -4,17 +4,22 @@ import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: "BABABOI",
-      signOptions: { expiresIn: '1h' }
-    })
+    ConfigModule,
+
+    JwtModule.registerAsync({
+      inject: [ConfigService], // injeta o ConfigService
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'), // pega do .env
+        signOptions: { expiresIn: '1h' },
+      }),
+    }),
   ],
   providers: [AuthService, JwtStrategy],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
-
 export class AuthModule {}

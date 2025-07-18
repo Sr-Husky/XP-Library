@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service'
 import { criarXpDto } from './dto/criarXp.dto';
 
@@ -18,7 +18,7 @@ export class XpService {
     if(!xp.pub) {
       if(!userId || xp.id_user !== userId) {
         // Não logado ou não é o dono
-        return null; // ou: throw new ForbiddenException();
+        throw new ForbiddenException();
       }
     }
 
@@ -53,24 +53,24 @@ export class XpService {
   // Lista todas as experiências de um usuário filtradas por busca ou tags (se tiver)
   async listarXpUser(id: number, busca?: string, tags?: string[]){
       return this.prisma.xp.findMany({
-      where: {
-          id_user: id,
-          AND: [
-              // Verifica correspondencia no texto ou no contexto
-              busca ? {
-                  OR: [
-                      { texto: { contains: busca, mode: 'insensitive' } },
-                      { contexto: { contains: busca, mode: 'insensitive' } },
-                  ],
-              } : {}, // Se não tem busca, desconsidera o filtro
-              // Verifica se todas tags especificadas estão inclusas
-              tags && tags.length > 0 ? {
-                  tags: { hasSome: tags }
-              } : {}, // Se não tem tags, desconsidera o filtro
-          ],
-      },
-      orderBy: { mod: 'desc' }, // Ordem decrescente
-      include: {user: true}
+        where: {
+            id_user: id,
+            AND: [
+                // Verifica correspondencia no texto ou no contexto
+                busca ? {
+                    OR: [
+                        { texto: { contains: busca, mode: 'insensitive' } },
+                        { contexto: { contains: busca, mode: 'insensitive' } },
+                    ],
+                } : {}, // Se não tem busca, desconsidera o filtro
+                // Verifica se todas tags especificadas estão inclusas
+                tags && tags.length > 0 ? {
+                    tags: { hasSome: tags }
+                } : {}, // Se não tem tags, desconsidera o filtro
+            ],
+        },
+        orderBy: { mod: 'desc' }, // Ordem decrescente
+        include: {user: true}
       });
   }
 

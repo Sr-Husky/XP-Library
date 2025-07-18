@@ -7,8 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER 
+  ADMIN
+}
+
 model User {
   id        Int       @id @default(autoincrement())
+  role      Role      @default(USER)
   usuario   String
   email     String    @unique
   senha     String
@@ -17,6 +23,7 @@ model User {
   like      Int[]
   favoritos Fav[]     @relation("Favoritos")
   xp        Xp[]      @relation("Experiencias")
+  refresh   String    @default("")
 }
 
 model Xp {

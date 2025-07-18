@@ -2,6 +2,8 @@ import { Get, Body, Controller, Param, Post, UseGuards, Request } from '@nestjs/
 import { UserService } from './user.service';
 import { CriarUserDto } from './dto/criarUser.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/roles/roles.guard';
+import { Roles } from 'src/roles/roles.decorator';
 
 @Controller('user')
 export class UserController {
@@ -13,7 +15,8 @@ export class UserController {
         return await this.userService.cadUser(dto);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('USER')
     @Post('logout')
     async logout(@Request() req){
         return await this.userService.logout(req.user.id);
@@ -23,15 +26,15 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @Get('me')
     async getProfile(@Request() req) {
-        return this.userService.getUser(req.user.id);
+        return await this.userService.getUser(req.user.id);
     }
 
     // Retorna todos os usuários
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('ADMIN')
     @Get()
-    getAllUsers(@Request() req){
-        //Aqui eu verifico o role
-        return this.userService.getAllUsers();
+    async getAllUsers(@Request() req){
+        return await this.userService.getAllUsers();
     }
 
 }

@@ -10,8 +10,15 @@ export const getUser = async (): Promise<User> => {
       Authorization: `Bearer ${token}`,
     },
   });
+
   return res.data;
 };
+
+// Chama serviço para atualizar o token
+export const refresh = async () => {
+  const refreshToken = localStorage.getItem('refresh_token');
+  return await api.post('/auth/refresh', {refreshToken})
+}
 
 // Chama serviço para logar 
 export const userLogin = async (email: string, senha: string) => {

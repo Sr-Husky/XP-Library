@@ -2,18 +2,15 @@ import Home from './home'
 import CardModal from '../components/cardModal'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getUser, deslogar } from '../services/userService'
-import type { User } from '../types/user'
+import { deslogar } from '../services/userService'
 import { useAuth } from '../contexts/AuthContext'
 
 function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }){
 
     const navigate = useNavigate();
     const [modal, setModal] = useState<boolean>(false); // Controle para cardModal
-    const [user, setUser] = useState<User>(); // Guarda um objeto com os dados do usuário logado
-    const { contextLogout } = useAuth();
-
-    const token = localStorage.getItem("token");
+    const { contextLogout, user } = useAuth();
+    const token = localStorage.getItem('token');
 
     // Recebe mensagem da navBar
     useEffect(() => {
@@ -36,16 +33,11 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
 
     // Verifia se o usuário está logado, se nao estiver volta para pagina "/entrar"
     useEffect(() => {
-        if(!token) navigate('/entrar');
-        const validar = async () => {
-            const res = await getUser();
-            if(!res.logado){
-                localStorage.removeItem("token");
-                navigate('/entrar');
-            }
-            setUser(res);
+        if(!token){
+            deslogar()
+            contextLogout();
+            navigate('/entrar');
         }
-        validar();
     },[])
 
     return (

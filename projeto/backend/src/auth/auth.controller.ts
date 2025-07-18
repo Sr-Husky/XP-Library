@@ -10,4 +10,9 @@ export class AuthController {
         const res = await this.authService.validateUser(body.email, body.senha);
         return this.authService.login(res);
     }
+
+    @Post('refresh')
+    async refresh(@Body() body: {refreshToken: string}){
+        return this.authService.refresh(body.refreshToken);
+    }
 }

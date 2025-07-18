@@ -48,8 +48,8 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
         // Função que se chama para filtrar toda vez que muda o texto ou as tags, ou o enter é precionado, se começa com '#' ele espera a tag ser adicionada
         (async () => {
             if(texto[0] !== '#'){
-                if(userOn) setFiltrado(await getXpUser(texto, tags.toString()))
-                else setFiltrado(await getPublicXp(texto, tags.toString()))
+                if(userOn) setFiltrado(await getXpUser(texto, tags.toString()));
+                else setFiltrado(await getPublicXp(texto, tags.toString()));
             }
         })()
 

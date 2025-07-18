@@ -5,7 +5,7 @@ type AuthContextType = {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  contextLogin: (userData: User, token: string) => void;
+  contextLogin: (userData: User, token: string, refresh_token: string) => void;
   contextLogout: () => void;
 };
 
@@ -26,8 +26,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const contextLogin = (userData: User, token: string) => {
+  const contextLogin = (userData: User, token: string, refresh: string) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("refresh_token", refresh);
     localStorage.setItem("user", JSON.stringify(userData));
     setToken(token);
     setUser(userData);
@@ -35,6 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const contextLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     setToken(null);
     setUser(null);

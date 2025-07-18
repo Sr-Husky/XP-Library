@@ -22,7 +22,7 @@ export class UserService {
             include: {
                 xp: true, // Inclui todas experiencias do usuário
                 favoritos: true, // Inclui todos favoritos do usuário
-            },
+            }
         })
     }
 

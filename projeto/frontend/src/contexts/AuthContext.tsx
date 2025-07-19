@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUser } from "../services/userService";
 import type { User } from "../types/user";
 
 type AuthContextType = {
@@ -7,6 +9,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   contextLogin: (userData: User, token: string, refresh_token: string) => void;
   contextLogout: () => void;
+  contextGetUser: () => User | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,6 +17,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  useQuery({
+    queryKey: ['user'],
+    queryFn: getUser,
+    staleTime: 1000 * 60 * 5,
+    enabled: !!token,
+  })
 
   // Restaura do localStorage ao iniciar
   useEffect(() => {
@@ -32,6 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("user", JSON.stringify(userData));
     setToken(token);
     setUser(userData);
+    queryClient.setQueryData(['user'], userData);
   };
 
   const contextLogout = () => {
@@ -42,12 +54,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
   };
 
+  const contextGetUser = () => {
+    return queryClient.getQueryData<User>(['user']) || null;
+  }
+
   const value: AuthContextType = {
     user,
     token,
     isAuthenticated: !!token && !!user?.logado,
     contextLogin,
     contextLogout,
+    contextGetUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

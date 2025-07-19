@@ -2,12 +2,14 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect }  from 'react'
 import { HomeIcon, UserIcon, ArrowRightOnRectangleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'
 import { getUser } from '../services/userService'
+import { useAuth } from "../contexts/AuthContext"
 import Botao from './botao'
 
 function Navbar({ func }: { func: (tipo: string) => void }) {
 
     const location = useLocation();
     const navigate = useNavigate();
+    const { contextGetUser } = useAuth();
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight }); // Coleta o tamanho atual da tela
 
     // Id do usuário logado
@@ -26,16 +28,13 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
     // Vê se o usuário está logado através do banco de dados
     useEffect(() => {
         if(token){
-            const validar = async () => {
-                const res = await getUser();
-                if(!res.logado){
-                    localStorage.removeItem("token");
-                    token = null;
-                }
+            const user = contextGetUser();
+            if(user && !user.logado){
+                localStorage.removeItem("token");
+                token = null;
             }
-            validar();
         }
-    },[])
+    }, [contextGetUser()]);
 
     return (
         <div className="w-full bg-[rgb(40,40,40)] shadow-xl h-[70px] md:h-16 fixed top-0 z-50 text-sm md:text-lg">

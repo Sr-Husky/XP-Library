@@ -4,6 +4,7 @@ import EditBox from '../components/editBox'
 import Botao from '../components/botao'
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../contexts/AuthContext';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userLogin, userCad, deslogar } from "../services/userService"
 
 function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => void} ){
@@ -20,6 +21,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight }); // Variáveis para quardar tamanho da tela
     const { contextLogin, contextLogout } = useAuth();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     // Recebe mensagem da navBar para fazer logout
     useEffect(() => {
@@ -66,16 +68,31 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
         return true;
     }
 
-    // Tenta fazer login
-    const login = async () => {
-        if(!validaEmail()) {setEmailRed(true); return setMsg("Digite um email válido");} // Testa a sintaxe do email
-        const res = await userLogin(email, senha); // Coleta dados da API
-        if(res === 404) {setEmailRed(true); return setMsg("Usuário não registrado");} // Erro caso o email não seja encontrado no banco de dados
-        if(res === 401) {setSenhaRed(true); return setMsg("Senha incorreta");} // Erro caso a senha não seja a mesma atribuida ao email
-        if(!res) return setMsg("Erro desconhecido, tente novamente");  // Qual outro erro (rede, etc)
-        contextLogin(res.user, res.access_token, res.refresh_token);
-        navigate('/me');
-    }
+    const { mutate: login, isPending } = useMutation({
+        mutationFn: async () => {
+            if (!validaEmail()) throw { type: 'email', message: 'Digite um email válido' };
+
+            const res = await userLogin(email, senha); // Coleta dados da API
+
+            if(res === 404) throw {type: 'email', message: "Usuário não registrado"};
+            if(res === 401) throw {type: 'senha', message: "Senha incorreta"};
+            if(!res) throw {message: "Erro desconhecido, tente novamente"};
+
+            return res;
+        },
+        onSuccess: (res) => {
+            queryClient.setQueryData(["user"],res.user);
+
+            contextLogin(res.user, res.access_token, res.refresh_token);
+            navigate('/me');
+        },
+        onError: (err: any) => {
+            if(err.type === "email") setEmailRed(true);
+            if(err.type === "senha") setSenhaRed(true);
+            setMsg(err.message);
+        }
+    });
+
 
     // Faz o cadastro
     const cadastro = async () => {

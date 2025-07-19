@@ -3,12 +3,13 @@ import { PencilIcon, TrashIcon, XMarkIcon, CheckIcon, HandThumbUpIcon, StarIcon,
 import { HandThumbUpIcon as HandThumbUpIconSolid, StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useLocation } from 'react-router-dom'
 import { getXp, criarXp, atualizaXp, removeXp } from '../services/xpService'
-import { getUser } from '../services/userService';
 import { like, favoritar, desfavoritar, deslike } from '../services/interactService';
 import type { Xp } from '../types/xp'
 import type { User } from '../types/user'
 import Confirmar from './confirmar'
 import type { Fav } from '../types/fav';
+import { useAuth } from '../contexts/AuthContext'
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?: boolean}){
 
@@ -19,42 +20,55 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
     const [delConf, setDelConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da deleção
     const [cancelConf, setCancelConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação do descarte das alterações
     const [pubConf, setPubConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da publicação
+    const [desfavConf, setDesfavConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da desfavoritação
     const [editMode, setEditMode] = useState<boolean>(false) // Abre o modal no modo de edição
     const [tagEdit, setTagEdit] = useState<string[]>([]) // Variável que controla o campo "tags" do controle de edição
     const [textoEdit, setTextoEdit] = useState<string>("") // Variável que controla o campo "texto" do controle de edição
     const [contextoEdit, setContextoEdit] = useState<string>("") // Variável que controla o campo "contexo" do controle de edição
     const [tagText, setTagText] = useState<string>('') // Variável que controla o campo de input de tags
-    const location = useLocation();
     const ref = [useRef<HTMLTextAreaElement>(null), useRef<HTMLTextAreaElement>(null)]; // 2 useRef para pegar referencia de 2 textAreas diferentes
+    const queryClient = useQueryClient();
+    const location = useLocation();
+    const { contextGetUser } = useAuth();
 
     // Busca os dados do usuário autor e da experiencia na API
     useEffect(() => {
-        // Pega os dados do usuário
-        const buscarUser = async () => {
-            const res = await getUser();
-            setUser(res);
-            // Se for experiencia vinda de favoritos, busca a experiencia por id da tabela de favoritos ao invés da tabela "xp"
-            if(fav) setFavObj(res.favoritos.find(e => e.id === id));
+        const userUpdate = contextGetUser();
+        if(userUpdate) {
+            setUser(userUpdate);
+            if(fav) setFavObj(userUpdate.favoritos.find(e => e.id === id));
         }
-        buscarUser();
+    }, [contextGetUser()]);
 
-        // Se tem um "id" de experiencia, pega ela e define os seus textos nos controladores
-        if(id){
-            const buscar = async () => {
-                const res = await getXp(id);
-                setCardObj(res);
-                setTextoEdit(res.texto);
-                setContextoEdit(res.contexto);
-                setTagEdit(res.tags);
-            }
-            
-            buscar();
-        // Se não tem um "id" de experiencia (id=0), define um objeto com texto vazio e ativa modo edição
-        } else {
+    // Busca os dados da experiencia
+    const buscarXpPorId = async (id: number) => {
+        return await getXp(id);
+    };
+
+    // UseQuery para manter os dados atualizados
+    const { data, isSuccess } = useQuery({
+        queryKey: ['experiencia', id],
+        queryFn: () => buscarXpPorId(id),
+        enabled: !!id, // só executa se houver um id válido
+    });
+
+    // Coloca os dados iniciais e atualiza se necessário
+    useEffect(() => {
+        if (isSuccess && data) {
+            setCardObj(data);
+            setTextoEdit(data.texto);
+            setContextoEdit(data.contexto);
+            setTagEdit(data.tags);
+        }
+    }, [isSuccess, data]);
+
+    // Caso não tenha id, modo de edição
+    useEffect(() => {
+        if (!id) {
             setCardObj(JSON.parse('{"texto":"","contexto":""}'))
             setEditMode(true);
         }
-    }, [])
+    }, []);
 
     // Ajusta a altura inicial dos textArea
     useEffect(() => {
@@ -86,6 +100,13 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
         if(!v.startsWith('#')) v="#"+v; // Adiciona # se não tiver
         if(v.endsWith(',')) v=v.slice(0,-1); // Tira a virgula do final, se tiver
         if(v !== '#' && !tagEdit.find(e => e === v)) setTagEdit(prev => [...prev, v.toLocaleLowerCase()]); // Verifica se a tag é vazia ou se já existe, caso não, adiciona
+    }
+
+    function editUpdate(pub?: boolean){
+        editar(pub);
+        queryClient.invalidateQueries(['user']);
+        queryClient.invalidateQueries([`experiencia ${id}`]);
+        queryClient.invalidateQueries(['xpUserCache']);
     }
 
     // Edita uma experiencia ou cria uma nova
@@ -121,7 +142,6 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
             };
             atualizar();
         }
-
     }
 
     // Verifica se é favorito
@@ -143,13 +163,30 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
             tags: cardObj.tags,
             data: cardObj.mod,
             likes: cardObj.likes
-        })
+        }).finally(() => queryClient.invalidateQueries(['user']))
     }
 
     // Exclui uma experiencia
     function excluir(){
-        removeXp(cardObj.id);
+        removeXp(cardObj.id).finally(() => queryClient.invalidateQueries(['xpUserCache']));
         onClose();
+    }
+
+    function desfav(quit: boolean){
+        desfavoritar(isFav()).finally(() => queryClient.invalidateQueries(['user']));
+        if(quit) onClose();
+    }
+
+    function addlike(){
+        like(cardObj.id).finally(() => {
+            queryClient.invalidateQueries(['user']);
+        })
+    }
+
+    function rmlike(){
+        deslike(cardObj.id, user.like.filter(e => e !== cardObj.id)).finally(() => {
+            queryClient.invalidateQueries(['user']);
+        })
     }
 
     return (
@@ -166,18 +203,19 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                         {/* Se está no "/me" mostra apenas botão desfavoritar, senão, mostra botão de fav/desfav e like/deslike */}
                         {location.pathname === '/me' ? <>
                             {/* Botão desfavoritar */}
-                            <button onClick={() => desfavoritar(isFav())} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                            <button onClick={() => setDesfavConf(true)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                            {desfavConf && <Confirmar titulo="Tem certeza que deseja desfavoritar?" texto="Essa ação pode ser irreversível, pois a experiência pode não estar mais disponível" func={() => desfav(true)} close={() => setDesfavConf(false)} />}
                         </> : <> 
                             {user && <>
                                 {/* Botão like/deslike */}
                                 {(user.like.find(e => e === id)) ?
-                                    <button onClick={() => deslike(cardObj.id, user.like.filter(e => e !== cardObj.id))} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIconSolid  className="w-7 h-7" /></button>
+                                    <button onClick={() => rmlike()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIconSolid  className="w-7 h-7" /></button>
                                     :
-                                    <button onClick={() => like(cardObj.id)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIcon  className="w-7 h-7" /></button>
+                                    <button onClick={() => addlike()} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><HandThumbUpIcon  className="w-7 h-7" /></button>
                                 }
                                 {/* Botão fav/desfav */}
                                 {(isFav()) ?
-                                    <button onClick={() => desfavoritar(isFav())} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
+                                    <button onClick={() => desfav(false)} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIconSolid  className="w-7 h-7" /></button>
                                     :
                                     <button onClick={() => addFav()} className="absolute text-white font-bold p-[3px] top-[20px] right-[105px] bg-gray-600 rounded-full"><StarIcon  className="w-7 h-7" /></button>
                                 }
@@ -197,11 +235,11 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                         {/* Botão de público/privado */}
                         {cardObj.pub ? <>
                             {/* Público (tornar privado) */}
-                            <button onClick={() => editar(false)} className="absolute text-green-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><GlobeAltIcon className="w-5 h-5" /></button>
+                            <button onClick={() => editUpdate(false)} className="absolute text-green-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><GlobeAltIcon className="w-5 h-5" /></button>
                         </> : <>
                             {/* Privado (tornar público) */}
                             <button onClick={() => setPubConf(true)} className="absolute text-blue-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><LockClosedIcon className="w-5 h-5" /></button>
-                            {pubConf && <Confirmar titulo="Tem certeza que deseja tornar público" texto="Ao tornar essa experiência pública, ela ficará disponível para qualquer pessoa, podendo ser salva por outros usuários" func={() => editar(true)} close={() => setPubConf(false)} />}
+                            {pubConf && <Confirmar titulo="Tem certeza que deseja tornar público" texto="Ao tornar essa experiência pública, ela ficará disponível para qualquer pessoa, podendo ser salva por outros usuários" func={() => editUpdate(true)} close={() => setPubConf(false)} />}
                         </>}
                     </>}
 
@@ -230,7 +268,7 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                 </> : <>
 
                     {/* Botão de confirmar edição */}
-                    <button onClick={() => {editar(); onClose()}} className="absolute text-white font-bold p-[6px] top-[20px] right-[16px] bg-gray-600 rounded-full"><CheckIcon className="w-6 h-6 text-green-600" /></button>
+                    <button onClick={() => {editUpdate(); onClose()}} className="absolute text-white font-bold p-[6px] top-[20px] right-[16px] bg-gray-600 rounded-full"><CheckIcon className="w-6 h-6 text-green-600" /></button>
                     {/* Botão de fechar (descartar edição) */}
                     <button onClick={() => setCancelConf(true)} className="absolute text-white font-bold p-[3px] top-[20px] right-[60px] bg-gray-600 rounded-full"><XMarkIcon  className="w-7 h-7 text-red-400" /></button>
                     {cancelConf && <Confirmar titulo="Cancelar alterações?" texto="Todas as alterações feitas serão descartadas, essa ação não poderá ser desfeita" func={onClose} close={() => setCancelConf(false)} />}

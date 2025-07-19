@@ -7,6 +7,7 @@ import { deslogar } from '../services/userService'
 import { useAuth } from '../contexts/AuthContext'
 import type { Xp } from '../types/xp'
 import type { Fav } from '../types/fav'
+import { useQuery } from '@tanstack/react-query'
 
 function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: string, limpaNavMsg?: () => void }){
 
@@ -15,13 +16,15 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
     const [tags, setTag] = useState<string[]>([]); // Variável para guardar as tags
     const [enter, setEnter] = useState(false); // Variável para detectar se "enter" foi precionado
     const [filtrados, setFiltrado] = useState<Xp[]>([]);
-    const { user, contextLogout } = useAuth();
+    const { contextGetUser, contextLogout } = useAuth();
     const navigate = useNavigate();
     
     // Pega todas experiências favoritas de um usuário (chamada pelo '/me')
     useEffect(() => {
-        if(userOn) setFav(user.favoritos);
-    }, []);
+        if(userOn && contextGetUser()) {
+            setFav(contextGetUser().favoritos);
+        }
+    }, [contextGetUser()]);
 
     // Recebe mensagem da barra e navegação para deslogar
     useEffect(() => {
@@ -34,6 +37,12 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
             }
         }
     }, [navMsg])
+
+    const { data } = useQuery({
+        queryKey: ['xpUserCache'],
+        queryFn: () => getXpUser(texto, tags.toString()),
+        enabled: userOn, // só busca se for user
+    });
 
     // Define uma tag e limpa a caixa de pesquisa
     useEffect(() => {
@@ -48,12 +57,16 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
         // Função que se chama para filtrar toda vez que muda o texto ou as tags, ou o enter é precionado, se começa com '#' ele espera a tag ser adicionada
         (async () => {
             if(texto[0] !== '#'){
-                if(userOn) setFiltrado(await getXpUser(texto, tags.toString()));
+                if(userOn) setFiltrado(data);
                 else setFiltrado(await getPublicXp(texto, tags.toString()));
             }
         })()
 
-    }, [texto, tags, enter]) // Chama a função caso digite um caractere ou aperte enter
+    }, [texto, tags, enter, data]) // Chama a função caso digite um caractere ou aperte enter
+
+    function teste(){
+        console.log(contextGetUser()?.favoritos);
+    }
 
     return (
         <>
@@ -77,7 +90,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
             {userOn && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
-                    <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Minhas experiências</h1>
+                    <h1 onClick={teste} className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Minhas experiências</h1>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                 </div>
             </>}

@@ -20,9 +20,10 @@ export const deslike = async (cardId: number, like: number[]) => {
 // Chama o serviço de favoritar
 export const favoritar = async (dto: Fav) => {
     const token = localStorage.getItem('token');
-    return await api.post('/interact/fav', dto, {
+    const fds = await api.post('/interact/fav', dto, {
         headers: {Authorization: `Bearer ${token}`}
     });
+    return fds;
 }
 
 // Chama o serviço de desfavoritar

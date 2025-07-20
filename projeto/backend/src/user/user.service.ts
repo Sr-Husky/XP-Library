@@ -51,6 +51,8 @@ export class UserService {
             },
         });
 
+        return novoUsuario;
+
     }
 
 }

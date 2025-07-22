@@ -33,7 +33,6 @@ export class XpController {
     @Get('usuario')
     listarXpUser(@Request() req, @Query('busca') busca?: string, @Query('tag') tag?: string) {
         const tags = tag?.split(',');
-        console.log(req.user.id, busca, tags)
         return this.xpService.listarXpUser(req.user.id, busca, tags);
     }
 

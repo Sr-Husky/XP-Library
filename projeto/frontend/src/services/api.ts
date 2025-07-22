@@ -14,15 +14,11 @@ api.interceptors.response.use(
         if (err.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            console.log("Erro interceptado")
-
             try {
                 const res = await refresh();
-                console.log("res: ",res);
 
                 if (res?.data.access_token) {
                     localStorage.setItem('token', res.data.access_token);
-                    console.log("Atualizando access token")
 
                     if (res.data.refresh_token) {
                         localStorage.setItem('refresh_token', res.data.refresh_token);

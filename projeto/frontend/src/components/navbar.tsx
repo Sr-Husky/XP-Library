@@ -27,7 +27,6 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
     // Vê se o usuário está logado através do banco de dados
     useEffect(() => {
         if(token){
-            console.log("fds")
             const user = contextGetUser();
             if(user && !user.logado){
                 localStorage.removeItem("token");

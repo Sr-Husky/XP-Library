@@ -68,7 +68,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
         return true;
     }
 
-    const { mutate: login, isPending } = useMutation({
+    const { mutate: login } = useMutation({
         mutationFn: async () => {
             if (!validaEmail()) throw { type: 'email', message: 'Digite um email válido' };
 
@@ -139,7 +139,7 @@ function Entrar( {navMsg, limpaNavMsg}: { navMsg: string, limpaNavMsg: () => voi
                     <EditBox onFocus={() => resetStyle()} rotulo='Digite seu email' value={email} onChange={setEmail} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${emailRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${emailRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
                     <EditBox onFocus={() => resetStyle()} rotulo='Digite sua senha' value={senha} onChange={setSenha} onEnter={handleEnterPress} style={`max-w-[600px] w-[70vw] h-[8vw] md:w-[60vw] md:h-[6vw] lg:w-[28vw] lg:h-[4vw] xl:w-[30vw] xl:h-[3vw] ${senhaRed && "border-[3px] [&:not(:focus)]:border-red-600"}`} styleInput={`text-[3vw] md:text-[1.5vw] lg:text-[1vw] ${senhaRed && "[&:not(:focus)]:text-red-400 placeholder:text-red-400"}`} />
                     <Botao texto='Entrar' onClick={login} style='w-[16vw] h-[8vw] md:w-[10vw] md:h-[4vw]' styleTexto='text-[2vw] md:text-[1vw]' />
-                    {msg && <p onClick={() => console.log("emailRed: ", emailRed)} className='text-[1.5vw] md:text-[0.8vw] text-white bg-red-600 rounded-full px-[1vw] p-[0.3vw] mb-[-3vw] mt-[0.7vw]'>{msg}</p>}
+                    {msg && <p className='text-[1.5vw] md:text-[0.8vw] text-white bg-red-600 rounded-full px-[1vw] p-[0.3vw] mb-[-3vw] mt-[0.7vw]'>{msg}</p>}
                 </div>
             )
 

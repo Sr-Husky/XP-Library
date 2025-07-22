@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?: boolean}){
 
-    const [cardObj, setCardObj] = useState<Xp>(); // Objeto da experiência mostrado no modal
+    const [cardObj, setCardObj] = useState<Xp | any>(); // Objeto da experiência mostrado no modal
     const [favObj, setFavObj] = useState<Fav>(); // Objeto da experiência mostrado no modal caso seja um objeto do tipo "Fav"
     const [user, setUser] = useState<User>(); // Usuário autor do card
     const [editConf, setEditConf] = useState<boolean>(false); // Mostra/Esconde modal de confirmação da edição
@@ -36,7 +36,7 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
         const userUpdate = contextGetUser();
         if(userUpdate) {
             setUser(userUpdate);
-            if(fav) setFavObj(userUpdate.favoritos.find(e => e.id === id));
+            if(fav) setFavObj(userUpdate.favoritos!.find(e => e.id === id));
         }
     }, [contextGetUser()]);
 
@@ -74,8 +74,8 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
     useEffect(() => {
         for(let x=0; x<2; x++){
             if (ref[x].current) {
-                ref[x].current.style.height = "auto";
-                ref[x].current.style.height = `${ref[x].current.scrollHeight}px`;
+                ref[x].current!.style.height = "auto";
+                ref[x].current!.style.height = `${ref[x].current!.scrollHeight}px`;
             }
         }
     }, [editMode]); // Atualiza assim que o modo de edição é ativado
@@ -102,15 +102,15 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
         if(v !== '#' && !tagEdit.find(e => e === v)) setTagEdit(prev => [...prev, v.toLocaleLowerCase()]); // Verifica se a tag é vazia ou se já existe, caso não, adiciona
     }
 
-    function editUpdate(pub?: boolean){
-        editar(pub);
-        queryClient.invalidateQueries(['user']);
-        queryClient.invalidateQueries([`experiencia ${id}`]);
-        queryClient.invalidateQueries(['xpUserCache']);
+    async function editUpdate(pub?: boolean){
+        await editar(pub);
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        queryClient.invalidateQueries({ queryKey: ['experiencia', id] });
+        queryClient.invalidateQueries({ queryKey: ['xpUserCache']});
     }
 
     // Edita uma experiencia ou cria uma nova
-    function editar(pub?: boolean){
+    async function editar(pub?: boolean){
         // Caso nenhuma experiencia seja passada para o modal, criar uma
         if(!id){
             const novo: Xp = {
@@ -123,31 +123,25 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                 likes: 0
             }
 
-            const criar = async () => {
-                return await criarXp(novo);
-            }
-            criar();
+            return await criarXp(novo);
 
         // Caso tenha uma experiencia, editar com os dados digitados nos textArea
         } else {
-            const atualizar = async () => {
-                return await atualizaXp({
-                    id: id,
-                    texto: textoEdit,
-                    contexto: contextoEdit,
-                    tags: tagEdit,
-                    pub: ((pub === undefined) ? cardObj.pub : pub), // Caso seja passado o parametro, é apenas uma mudança de visibilidade, atualizar a visibilidade
-                    likes: ((pub === undefined) ? 0 : cardObj.likes) // Caso seja passado o parametro, é apenas uma mudança de visibilidade, não zerar os likes
-                });
-            };
-            atualizar();
+            return await atualizaXp({
+                id: id,
+                texto: textoEdit,
+                contexto: contextoEdit,
+                tags: tagEdit,
+                pub: ((pub === undefined) ? cardObj!.pub : pub), // Caso seja passado o parametro, é apenas uma mudança de visibilidade, atualizar a visibilidade
+                likes: ((pub === undefined) ? 0 : cardObj!.likes) // Caso seja passado o parametro, é apenas uma mudança de visibilidade, não zerar os likes
+            });
         }
     }
 
     // Verifica se é favorito
     function isFav(){
         // Retonar se é ou não favorito para desfavoritar na pagina "/"
-        if(!fav) return user.favoritos.find(e => e.autorId === cardObj.id_user && e.texto === cardObj.texto && e.contexto === cardObj.contexto && e.data === cardObj.mod);
+        if(!fav) return user!.favoritos!.find(e => e.autorId === cardObj?.id_user && e.texto === cardObj.texto && e.contexto === cardObj.contexto && e.data === cardObj.mod);
         // Retonar se é ou não favorito para desfavoritar na pagina "/me"
         else return favObj;
     }
@@ -155,7 +149,7 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
     // Adiciona a experiencia nos favoritos
     function addFav(){
         favoritar({
-            id_user: user.id,
+            id_user: user!.id ? user!.id : 0,
             autor: cardObj.user.usuario,
             autorId: cardObj.id_user,
             texto: cardObj.texto,
@@ -163,29 +157,29 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
             tags: cardObj.tags,
             data: cardObj.mod,
             likes: cardObj.likes
-        }).finally(() => queryClient.invalidateQueries(['user']))
+        }).finally(() => queryClient.invalidateQueries({ queryKey: ['user'] }))
     }
 
     // Exclui uma experiencia
     function excluir(){
-        removeXp(cardObj.id).finally(() => queryClient.invalidateQueries(['xpUserCache']));
+        removeXp(cardObj.id).finally(() => queryClient.invalidateQueries({ queryKey: ['xpUserCache'] }));
         onClose();
     }
 
     function desfav(quit: boolean){
-        desfavoritar(isFav()).finally(() => queryClient.invalidateQueries(['user']));
+        desfavoritar(isFav()!).finally(() => queryClient.invalidateQueries({ queryKey: ['user'] }));
         if(quit) onClose();
     }
 
     function addlike(){
         like(cardObj.id).finally(() => {
-            queryClient.invalidateQueries(['user']);
+            queryClient.invalidateQueries({ queryKey: ['user'] });
         })
     }
 
     function rmlike(){
-        deslike(cardObj.id, user.like.filter(e => e !== cardObj.id)).finally(() => {
-            queryClient.invalidateQueries(['user']);
+        deslike(cardObj.id, user!.like.filter(e => e !== cardObj.id)).finally(() => {
+            queryClient.invalidateQueries({ queryKey: ['user'] });
         })
     }
 
@@ -235,11 +229,11 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                         {/* Botão de público/privado */}
                         {cardObj.pub ? <>
                             {/* Público (tornar privado) */}
-                            <button onClick={() => editUpdate(false)} className="absolute text-green-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><GlobeAltIcon className="w-5 h-5" /></button>
+                            <button onClick={async () => await editUpdate(false)} className="absolute text-green-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><GlobeAltIcon className="w-5 h-5" /></button>
                         </> : <>
                             {/* Privado (tornar público) */}
                             <button onClick={() => setPubConf(true)} className="absolute text-blue-400 font-bold p-[6px] top-[20px] right-[150px] bg-gray-600 rounded-full"><LockClosedIcon className="w-5 h-5" /></button>
-                            {pubConf && <Confirmar titulo="Tem certeza que deseja tornar público" texto="Ao tornar essa experiência pública, ela ficará disponível para qualquer pessoa, podendo ser salva por outros usuários" func={() => editUpdate(true)} close={() => setPubConf(false)} />}
+                            {pubConf && <Confirmar titulo="Tem certeza que deseja tornar público" texto="Ao tornar essa experiência pública, ela ficará disponível para qualquer pessoa, podendo ser salva por outros usuários" func={async () => await editUpdate(true)} close={() => setPubConf(false)} />}
                         </>}
                     </>}
 
@@ -247,13 +241,13 @@ function CardModal({ id, onClose, fav }: { id: number, onClose: () => void, fav?
                     {((!fav && cardObj) || (fav && favObj)) ?  (
                         <> 
                             {/* Mostrar dados do objeto do tipo Xp ou do objeto do tipo fav */}
-                            <p className="text-white pb-4 font-bold">{fav ? favObj.autor : cardObj.user.usuario}</p>
-                            <p className="text-white">{fav ? favObj.texto : cardObj.texto}</p>
+                            <p className="text-white pb-4 font-bold">{fav ? favObj!.autor : cardObj.user.usuario}</p>
+                            <p className="text-white">{fav ? favObj!.texto : cardObj.texto}</p>
                             <hr className="my-6 border-white" />
-                            <p className="text-white">{fav ? favObj.contexto : cardObj.contexto}</p>
+                            <p className="text-white">{fav ? favObj!.contexto : cardObj.contexto}</p>
                             <hr className="my-6 border-white" />
                             <div className='flex flex-wrap gap-2'>
-                                {(fav ? favObj : cardObj).tags.map((t, index) => (
+                                {(fav ? favObj : cardObj).tags.map((t:any, index:any) => (
                                     <p key={index} className="text-white bg-white/10 px-3 py-1 rounded-full">
                                         {t}
                                     </p>

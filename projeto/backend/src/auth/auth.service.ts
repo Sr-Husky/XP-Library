@@ -68,7 +68,6 @@ export class AuthService {
 
             return this.login(user);
         } catch (err) {
-            console.log("err:",err)
             return null; // token inválido, expirado, etc
         }
     }

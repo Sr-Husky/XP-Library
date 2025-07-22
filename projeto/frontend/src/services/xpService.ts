@@ -59,7 +59,7 @@ export const getXp = async (id: number): Promise<Xp | null> => {
 export const atualizaXp = async (dto: {id: number, texto: string, contexto: string, tags: string[], pub: boolean, likes: number}) => {
   const token = localStorage.getItem('token');
 
-  const res = await api.put('/xp/atualizar', dto, {
+  return await api.put('/xp/atualizar', dto, {
     headers: {Authorization: `Bearer ${token}`}
   });
 

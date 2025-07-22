@@ -24,7 +24,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
     // Pega todas experiências favoritas de um usuário (chamada pelo '/me')
     useEffect(() => {
         if(userOn && contextGetUser()) {
-            setFav(contextGetUser().favoritos);
+            setFav(contextGetUser()!.favoritos!);
         }
     }, [contextGetUser()]);
 
@@ -34,7 +34,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
             if(navMsg === "logout"){
                 deslogar();
                 contextLogout();
-                limpaNavMsg()
+                limpaNavMsg!();
                 queryClient.clear();
                 navigate('/entrar');
             }
@@ -60,16 +60,12 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
         // Função que se chama para filtrar toda vez que muda o texto ou as tags, ou o enter é precionado, se começa com '#' ele espera a tag ser adicionada
         (async () => {
             if(texto[0] !== '#'){
-                if(userOn) setFiltrado(data);
+                if(userOn) setFiltrado(data!);
                 else setFiltrado(await getPublicXp(texto, tags.toString()));
             }
         })()
 
     }, [texto, tags, enter, data]) // Chama a função caso digite um caractere ou aperte enter
-
-    function teste(){
-        console.log(contextGetUser()?.favoritos);
-    }
 
     return (
         <>
@@ -93,7 +89,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
             {userOn && <>
                 <div className='flex justify-center items-center flex-wrap p-[20px]'>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
-                    <h1 onClick={teste} className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Minhas experiências</h1>
+                    <h1 className='text-white text-[4vw] md:text-[2vw] mx-[3vw]'>Minhas experiências</h1>
                     <hr className="flex my-6 border-white w-[15vw] md:w-[24vw]" />
                 </div>
             </>}
@@ -102,7 +98,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
             {filtrados && <>
                 <div className='flex justify-center flex-wrap p-[20px]'>
                     {filtrados.map(xp => (
-                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`${xp.user.usuario}`} texto={xp.texto} />
+                        <Card key={xp.id} card_id={Number(xp.id)} like={xp.likes} titulo={`${xp.user!.usuario}`} texto={xp.texto} />
                     ))}
                 </div>
             </>}
@@ -117,7 +113,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
                 {/* Mostra os cards com dados dos favoritos e passa parametro "fav" para usar no "cardModal" */}
                 <div className='flex justify-center flex-wrap p-[20px]'>
                     {fav.map(xp => (
-                        <Card key={xp.id} card_id={xp.id} like={xp.likes} titulo={`${xp.autor}`} texto={xp.texto} fav={true} />
+                        <Card key={xp.id} card_id={Number(xp.id)} like={xp.likes} titulo={`${xp.autor}`} texto={xp.texto} fav={true} />
                     ))}
                 </div>
             </>}

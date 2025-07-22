@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { deslogar } from '../services/userService'
 import { useAuth } from '../contexts/AuthContext'
+import { useQueryClient } from '@tanstack/react-query';
 
 function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }){
 
     const navigate = useNavigate();
     const [modal, setModal] = useState<boolean>(false); // Controle para cardModal
     const { contextLogout, user } = useAuth();
+    const queryClient = useQueryClient();
     const token = localStorage.getItem('token');
 
     // Recebe mensagem da navBar
@@ -20,6 +22,7 @@ function Me({ navMsg, limpaNavMsg }: { navMsg: string, limpaNavMsg: () => void }
                 deslogar();
                 contextLogout();
                 limpaNavMsg()
+                queryClient.clear();
                 navigate('/entrar');
             }
 

@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext'
 import type { Xp } from '../types/xp'
 import type { Fav } from '../types/fav'
 import { useQuery } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query';
 
 function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: string, limpaNavMsg?: () => void }){
 
@@ -17,6 +18,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
     const [enter, setEnter] = useState(false); // Variável para detectar se "enter" foi precionado
     const [filtrados, setFiltrado] = useState<Xp[]>([]);
     const { contextGetUser, contextLogout } = useAuth();
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
     
     // Pega todas experiências favoritas de um usuário (chamada pelo '/me')
@@ -33,6 +35,7 @@ function Home({ userOn, navMsg, limpaNavMsg }: { userOn?: boolean, navMsg?: stri
                 deslogar();
                 contextLogout();
                 limpaNavMsg()
+                queryClient.clear();
                 navigate('/entrar');
             }
         }

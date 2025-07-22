@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect }  from 'react'
 import { HomeIcon, UserIcon, ArrowRightOnRectangleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'
-import { getUser } from '../services/userService'
 import { useAuth } from "../contexts/AuthContext"
 import Botao from './botao'
 
@@ -28,6 +27,7 @@ function Navbar({ func }: { func: (tipo: string) => void }) {
     // Vê se o usuário está logado através do banco de dados
     useEffect(() => {
         if(token){
+            console.log("fds")
             const user = contextGetUser();
             if(user && !user.logado){
                 localStorage.removeItem("token");

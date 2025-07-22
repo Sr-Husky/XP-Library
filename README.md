@@ -197,10 +197,8 @@ O objetivo é fazer commits diários, onde os arquivos do projeto mudam a cada c
 - Escrever testes unitários para as regras de negócio de um dos seus `services` (ex: `AuthService`).
 - Escrever um teste de integração (E2E) para um `controller`, usando Supertest para simular requisições HTTP e validar as respostas da API, como o status code e o corpo da resposta.
 
-#### 📌 Segunda (21/07) — **🧪 Revisão da Semana e Testes no Frontend**
+#### 📌 Segunda (21/07) — **🧪 Revisão da Semana**
 - Revisar todo o fluxo de autenticação e o uso do React Query.
-- Escrever testes para componentes React com **Vitest** e **React Testing Library**.
-- Começar testando um componente simples (ex: `Button`) e depois um que consuma um hook (ex: um `CardExperiencia` que use dados mockados).
 - Fazer o post da semana no LinkedIn, focando no aprendizado sobre autenticação JWT e gerenciamento de estado moderno.
 
 ---

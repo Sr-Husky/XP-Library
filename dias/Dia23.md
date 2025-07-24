@@ -99,7 +99,7 @@
 	- `jobs:` Onde você define os jobs (tarefas paralelas ou em sequência)
 		- `<nome do job>`
 			- `name:` Nome legível do job
-			- `runs-on:` Ambiente onde o job será executado (ex: ubuntu-latest)steps Lista de comandos a executar
+			- `runs-on:` Ambiente onde o job será executado (ex: ubuntu-latest)
 			- `env:` Variáveis de ambiente específicas do job
 			- `needs:` Define que este job depende de outro
 			- `timeout-minutes:` Tempo máximo do job

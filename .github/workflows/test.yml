@@ -1,0 +1,49 @@
+name: Testes Automatizados
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: xp-library
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://user:password@localhost:5432/xp-library
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalar dependências do Backend
+        working-directory: projeto/backend
+        run: npm install
+
+      - name: Rodar testes unitários
+        working-directory: projeto/backend
+        run: npm run test
+
+      - name: Rodar migrations do Prisma
+        working-directory: projeto/backend
+        run: npx prisma migrate deploy
+
+      - name: Rodar testes E2E
+        working-directory: projeto/backend
+        run: npm run test:e2e

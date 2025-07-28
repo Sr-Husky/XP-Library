@@ -101,7 +101,7 @@ docker-compose up --build
 
 **Importante:** Neste momento, a aplicação backend irá iniciar, mas provavelmente ficará reiniciando ou mostrando erros nos logs. Isso é **normal**, pois as tabelas do banco de dados ainda não foram criadas.
 
-3. **Crie as tabelas do banco de dados (em outro cmd)**
+3. **Crie as tabelas do banco de dados (em outro cmd, ainda na pasta "XP-Library/projeto")**
 
 ```bash
 docker-compose exec backend npx prisma migrate deploy
